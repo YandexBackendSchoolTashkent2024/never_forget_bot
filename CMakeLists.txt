@@ -41,28 +41,30 @@ endif()
 add_subdirectory(third_party/tgbot_cpp)
 
 # Common sources
-add_library(${PROJECT_NAME}_objs OBJECT
-    src/hello.hpp
-    src/hello.cpp
+set(SOURCES
+    src/main.cpp
+    src/bot/handlers/on_start_command.cpp
+    src/bot/handlers/on_help_command.cpp
+    src/bot/utils/get_bot_commands.cpp
+    src/bot/utils/get_bot_description.cpp
 )
-target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql TgBot ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
-
 
 # The Service
-add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
-
+add_executable(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(${PROJECT_NAME} PRIVATE userver::postgresql
+    TgBot
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${OPENSSL_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${CURL_LIBRARIES}
+)
 
 # Unit Tests
-add_executable(${PROJECT_NAME}_unittest
-    src/hello_test.cpp
-)
-target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
-add_google_tests(${PROJECT_NAME}_unittest)
-
-
-# Functional Tests
-userver_testsuite_add_simple()
+# add_executable(${PROJECT_NAME}_unittest
+#     src/hello_test.cpp
+# )
+# target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
+# add_google_tests(${PROJECT_NAME}_unittest)
 
 
 # Install
