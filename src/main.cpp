@@ -4,8 +4,15 @@
 #include <exception>
 #include <string>
 #include <vector>
-
 #include <tgbot/tgbot.h>
+#include <userver/clients/dns/component.hpp>
+#include <userver/clients/http/component.hpp>
+#include <userver/components/minimal_server_component_list.hpp>
+#include <userver/server/handlers/ping.hpp>
+#include <userver/server/handlers/tests_control.hpp>
+#include <userver/storages/postgres/component.hpp>
+#include <userver/testsuite/testsuite_support.hpp>
+#include <userver/utils/daemon_run.hpp>
 
 using namespace std;
 using namespace TgBot;
@@ -35,7 +42,24 @@ void createKeyboard(const vector<vector<string>>& buttonLayout, ReplyKeyboardMar
 }
 
 
-int main() {
+void startServer(int argc, char* argv[]){
+    auto component_list =
+      userver::components::MinimalServerComponentList()
+          .Append<userver::server::handlers::Ping>()
+          .Append<userver::components::TestsuiteSupport>()
+          .Append<userver::components::HttpClient>()
+          .Append<userver::server::handlers::TestsControl>()
+          .Append<userver::components::Postgres>("postgres-db-1")
+          .Append<userver::clients::dns::Component>();
+
+  // never_forget_bot::AppendNotificationScheduler(component_list);
+  // never_forget_bot::AppendEventCreator(component_list);
+
+  userver::utils::DaemonMain(argc, argv, component_list);
+}
+
+int main(int argc, char* argv[]) {
+    startServer(argc, argv);
     string token(getenv("TOKEN"));
     printf("Token: %s\n", token.c_str());
 
