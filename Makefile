@@ -75,7 +75,7 @@ export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@servi
 
 # Internal hidden targets that are used only in docker environment
 --in-docker-start-debug --in-docker-start-release: --in-docker-start-%: install-%
-	psql ${DB_CONNECTION} -f ./postgresql/data/initial_data.sql
+	psql ${DB_CONNECTION} -f ./postgresql/schemas/db-1.sql
 	/home/user/.local/bin/never_forget_bot \
 		--config /home/user/.local/etc/never_forget_bot/static_config.yaml \
 		--config_vars /home/user/.local/etc/never_forget_bot/config_vars.docker.yaml
