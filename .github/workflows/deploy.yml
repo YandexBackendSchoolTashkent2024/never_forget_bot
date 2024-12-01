@@ -27,7 +27,7 @@ jobs:
     #    sudo make docker-test
     - name: Deploy application to remote server
       run: |
-        tar -czf app.tar.gz *
+        tar -czf app.tar.gz * .env
         ls -la
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
