@@ -1,5 +1,8 @@
-ifeq ($(shell test -e '.env' && echo -n yes),yes)
-	include .env
+# Makefile
+
+# Check if .env exists and include it
+ifeq ($(shell test -e .env && echo yes),yes)
+    include .env
 endif
 
 args := $(wordlist 2, 100, $(MAKECMDGOALS))
@@ -9,8 +12,8 @@ else
 MESSAGE = "Done"
 endif
 
-DOCKER = podman
-DOCKER_COMPOSE = podman compose
+DOCKER = docker
+DOCKER_COMPOSE = docker-compose
 
 HELP_FUN = \
 	%help; while(<>){push@{$$help{$$2//'options'}},[$$1,$$3] \
@@ -70,3 +73,34 @@ open: ##@Docker Open container in docker
 docker-run: ##@Docker Run sh in paused docker container
 	$(DOCKER) run --rm -it --entrypoint bash $(args)
 
+# New Migrate Command
+.PHONY: migrate
+migrate: docker-up-d ##@Migration Run database migrations
+	@echo "POSTGRES_USER=$(POSTGRES_USER)"
+	@echo "POSTGRES_DB=$(POSTGRES_DB)"
+	@echo "Waiting for PostgreSQL to be ready..."
+	attempts=0; \
+	max_attempts=30; \
+	while ! $(DOCKER_COMPOSE) exec postgres pg_isready -U $(POSTGRES_USER) -d $(POSTGRES_DB) > /dev/null 2>&1; do \
+		if [ $$attempts -ge $$max_attempts ]; then \
+			echo "PostgreSQL is not ready after $$max_attempts attempts. Exiting."; \
+			exit 1; \
+		fi; \
+		echo "PostgreSQL is not ready yet. Waiting... ($$attempts/$$max_attempts)"; \
+		sleep 2; \
+		attempts=`expr $$attempts + 1`; \
+	done
+	@echo "PostgreSQL is ready. Running migrations..."
+	@for file in migrations/*.sql; do \
+		echo "Applying $$file..."; \
+		cat $$file | $(DOCKER_COMPOSE) exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) || { echo "Migration $$file failed."; exit 1; }; \
+	done
+	@echo "Migrations completed successfully."
+
+.PHONY: print-env
+print-env: ##@Debug Print environment variables
+	@echo "POSTGRES_USER=$(POSTGRES_USER)"
+	@echo "POSTGRES_DB=$(POSTGRES_DB)"
+	@echo "POSTGRES_PASSWORD=$(POSTGRES_PASSWORD)"
+	@echo "POSTGRES_HOST=$(POSTGRES_HOST)"
+	@echo "TOKEN=$(TOKEN)"
