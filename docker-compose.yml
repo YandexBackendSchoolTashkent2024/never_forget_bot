@@ -1,8 +1,7 @@
-version: '3.9'
-
 services:
   bot:
     container_name: bot
+    platform: linux/arm64
     logging:
       driver: "json-file"
       options:
@@ -23,6 +22,7 @@ services:
 
   postgres:
     container_name: postgres
+    platform: linux/arm64
     image: postgres:14.5
     command:
       - "postgres"
