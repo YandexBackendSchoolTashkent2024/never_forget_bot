@@ -28,6 +28,7 @@ jobs:
     - name: Deploy application to remote server
       run: |
         tar -czf app.tar.gz *
+        ls -la
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
         sudo chmod 600 ~/.ssh/deploy_key
