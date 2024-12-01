@@ -14,17 +14,17 @@ jobs:
     - name: Prepare env file
       run: |
         echo "${{ secrets.ENV }}" > .env;
-    #- name: Install docker-compose
-    #  run: |
-    #    sudo apt update
-    #    sudo apt install -y docker-compose
-    #- name: Build image
-    #  run: |
-    #    git submodule update --init
-    #    sudo make docker
-    #- name: Test
-    #  run: |
-    #    sudo make docker-test
+    - name: Install docker-compose
+      run: |
+        sudo apt update
+        sudo apt install -y docker-compose
+    - name: Build image
+      run: |
+        git submodule update --init
+        sudo make docker
+    - name: Test
+      run: |
+        sudo make docker-test
     - name: Deploy application to remote server
       run: |
         tar -czf app.tar.gz * .env
