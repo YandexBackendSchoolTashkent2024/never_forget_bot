@@ -31,4 +31,8 @@ jobs:
         sudo apt install -y docker-compose
     - name: Build image
       run: |
+        git submodule update --init
         sudo make docker
+    - name: Test
+      run: |
+        sudo make docker-test
