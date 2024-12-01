@@ -31,7 +31,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
         sudo chmod 600 ~/.ssh/deploy_key
-        scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no app.tar.gz ubuntu@158.160.128.8:~/app
+        scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no app.tar.gz ubuntu@158.160.128.8:~/app/
         ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@158.160.128.8 "
         cd app
         tar -xzf app.tar.gz
