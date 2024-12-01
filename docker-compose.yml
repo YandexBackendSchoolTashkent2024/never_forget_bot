@@ -1,7 +1,7 @@
 services:
   bot:
     container_name: bot
-    platform: linux/arm64
+    platform: linux/amd64/v4
     logging:
       driver: "json-file"
       options:
@@ -22,7 +22,7 @@ services:
 
   postgres:
     container_name: postgres
-    platform: linux/arm64
+    platform: linux/amd64/v4
     image: postgres:14.5
     command:
       - "postgres"

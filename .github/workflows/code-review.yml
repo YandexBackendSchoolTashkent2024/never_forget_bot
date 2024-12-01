@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+    paths-ignore:
+      - ".github/**"
+      - "**.md"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - ".github/**"
+      - "**.md"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Prepare env file
+      run: |
+        echo "${{ secrets.ENV }}" > .env;
+    - name: Install docker-compose
+      run: |
+        sudo apt update
+        sudo apt install -y docker-compose
+    - name: Build image
+      run: |
+        sudo make docker

@@ -73,6 +73,10 @@ open: ##@Docker Open container in docker
 docker-run: ##@Docker Run sh in paused docker container
 	$(DOCKER) run --rm -it --entrypoint bash $(args)
 
+.PHONY: docker-test
+docker-test: ##@Docker Run sh in paused docker container
+	$(DOCKER_COMPOSE) run --rm bot make test
+
 # New Migrate Command
 .PHONY: migrate
 migrate: docker-up-d ##@Migration Run database migrations
