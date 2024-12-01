@@ -1,9 +1,9 @@
 services:
     postgres:
         container_name: service-postgres
-        image: postgres:12
+        image: postgres:latest
         environment: &db_env
-            POSTGRES_DB: never_forget_bot_db_1
+            POSTGRES_DB: never_forget_bot_db-1
             POSTGRES_USER: user
             POSTGRES_PASSWORD: password
         ports:
@@ -17,19 +17,21 @@ services:
     never_forget_bot-container:
         image: ghcr.io/userver-framework/ubuntu-22.04-userver-pg:latest
         privileged: true
+        env_file:
+            - path: .env
         environment:
             <<: *db_env
             PREFIX: ${PREFIX:-~/.local}
             CCACHE_DIR: /never_forget_bot/.ccache
             CORES_DIR: /cores
+        entrypoint:
+            - ./configs/run_as_user.sh
         volumes:
             - .:/never_forget_bot:rw
             - ${TC_CORES_DIR:-./.cores}:/cores:rw
         ports:
             - 8080:8080
         working_dir: /never_forget_bot
-        entrypoint:
-            - ./tests/run_as_user.sh
         depends_on:
             - postgres
         networks:

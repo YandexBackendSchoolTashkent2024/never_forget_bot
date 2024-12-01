@@ -31,28 +31,9 @@ components_manager:
                     network_timeout_ms: 750
                     statement_timeout_ms: 500
 
-        testsuite-support: {}
-
         http-client:
             load-enabled: $is-testing
             fs-task-processor: fs-task-processor
-
-        tests-control:
-            load-enabled: $is-testing
-            path: /tests/{action}
-            method: POST
-            task_processor: main-task-processor
-        handler-ping:
-            path: /ping
-            method: GET
-            task_processor: main-task-processor
-            throttling_enabled: false
-            url_trailing_slash: strict-match
-
-        handler-hello:
-            path: /v1/hello
-            method: POST
-            task_processor: main-task-processor
 
         postgres-db-1:
             dbconnection: $dbconnection
