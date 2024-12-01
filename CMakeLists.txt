@@ -27,10 +27,8 @@ add_subdirectory(third_party/tgbot_cpp)
 
 # Common sources
 add_library(${PROJECT_NAME}_objs OBJECT
-    src/bot/handlers/on_start_command.cpp
-    src/bot/handlers/on_help_command.cpp
-    src/bot/utils/get_bot_commands.cpp
-    src/bot/utils/get_bot_description.cpp
+    src/bot/handlers/command_handlers.cpp
+    src/bot/utils/utils.cpp
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql
     TgBot
