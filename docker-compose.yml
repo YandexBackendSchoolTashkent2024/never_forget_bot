@@ -1,41 +1,39 @@
-version: "2.3"
-
 services:
     postgres:
         container_name: service-postgres
         image: postgres:12
         environment: &db_env
-          POSTGRES_DB: pg_service_template_db_1
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
+            POSTGRES_DB: never_forget_bot_db_1
+            POSTGRES_USER: user
+            POSTGRES_PASSWORD: password
         ports:
-          - 5432
+            - 5432
         volumes:
-          - ./postgresql/schemas:/docker-entrypoint-initdb.d
-          - ./.pgdata:/var/lib/postgresql/data
+            - ./postgresql/schemas:/docker-entrypoint-initdb.d
+            - ./.pgdata:/var/lib/postgresql/data
         networks:
-          - postgres
+            - postgres
 
-    pg_service_template-container:
+    never_forget_bot-container:
         image: ghcr.io/userver-framework/ubuntu-22.04-userver-pg:latest
         privileged: true
         environment:
-          <<: *db_env
-          PREFIX: ${PREFIX:-~/.local}
-          CCACHE_DIR: /pg_service_template/.ccache
-          CORES_DIR: /cores
+            <<: *db_env
+            PREFIX: ${PREFIX:-~/.local}
+            CCACHE_DIR: /never_forget_bot/.ccache
+            CORES_DIR: /cores
         volumes:
-          - .:/pg_service_template:rw
-          - ${TC_CORES_DIR:-./.cores}:/cores:rw
+            - .:/never_forget_bot:rw
+            - ${TC_CORES_DIR:-./.cores}:/cores:rw
         ports:
-          - 8080:8080
-        working_dir: /pg_service_template
+            - 8080:8080
+        working_dir: /never_forget_bot
         entrypoint:
-          - ./tests/run_as_user.sh
+            - ./tests/run_as_user.sh
         depends_on:
-          - postgres
+            - postgres
         networks:
-          - postgres
+            - postgres
 
 networks:
     postgres:
