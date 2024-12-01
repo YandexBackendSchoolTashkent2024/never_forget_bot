@@ -96,11 +96,3 @@ migrate: docker-up-d ##@Migration Run database migrations
 		cat $$file | $(DOCKER_COMPOSE) exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) || { echo "Migration $$file failed."; exit 1; }; \
 	done
 	@echo "Migrations completed successfully."
-
-.PHONY: print-env
-print-env: ##@Debug Print environment variables
-	@echo "POSTGRES_USER=$(POSTGRES_USER)"
-	@echo "POSTGRES_DB=$(POSTGRES_DB)"
-	@echo "POSTGRES_PASSWORD=$(POSTGRES_PASSWORD)"
-	@echo "POSTGRES_HOST=$(POSTGRES_HOST)"
-	@echo "TOKEN=$(TOKEN)"
