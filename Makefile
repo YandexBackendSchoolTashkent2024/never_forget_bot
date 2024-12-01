@@ -40,7 +40,7 @@ test-debug test-release: test-%: build-%
 # Start the service (via testsuite service runner)
 .PHONY: start-debug start-release
 start-debug start-release: start-%: build-%
-	cmake --build build_$* -v --target start-never_forget_bot
+	cmake --build build_$* -v --target never_forget_bot
 
 .PHONY: service-start-debug service-start-release
 service-start-debug service-start-release: service-start-%: start-%
@@ -76,9 +76,9 @@ export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@servi
 # Internal hidden targets that are used only in docker environment
 --in-docker-start-debug --in-docker-start-release: --in-docker-start-%: install-%
 	psql ${DB_CONNECTION} -f ./postgresql/schemas/db-1.sql
-	/home/user/.local/bin/never_forget_bot \
-		--config /home/user/.local/etc/never_forget_bot/static_config.yaml \
-		--config_vars /home/user/.local/etc/never_forget_bot/config_vars.docker.yaml
+	/root/.local/bin/never_forget_bot \
+		--config /root/.local/etc/never_forget_bot/static_config.yaml \
+		--config_vars /root/.local/etc/never_forget_bot/config_vars.docker.yaml
 
 # Build and run service in docker environment
 .PHONY: docker-start-debug docker-start-release

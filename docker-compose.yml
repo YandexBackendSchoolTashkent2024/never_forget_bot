@@ -24,8 +24,6 @@ services:
             PREFIX: ${PREFIX:-~/.local}
             CCACHE_DIR: /never_forget_bot/.ccache
             CORES_DIR: /cores
-        entrypoint:
-            - ./configs/run_as_user.sh
         volumes:
             - .:/never_forget_bot:rw
             - ${TC_CORES_DIR:-./.cores}:/cores:rw

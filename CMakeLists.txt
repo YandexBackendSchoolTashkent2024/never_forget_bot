@@ -23,35 +23,16 @@ endif()
 
 userver_setup_environment()
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
-set(Boost_USE_MULTITHREADED ON)
-
-find_package(Threads REQUIRED)
-find_package(OpenSSL REQUIRED)
-find_package(Boost COMPONENTS system REQUIRED)
-find_package(CURL)
-include_directories(/usr/local/include ${OPENSSL_INCLUDE_DIR} ${Boost_INCLUDE_DIR})
-if (CURL_FOUND)
-    include_directories(${CURL_INCLUDE_DIRS})
-    add_definitions(-DHAVE_CURL)
-endif()
-
 add_subdirectory(third_party/tgbot_cpp)
 
 # Common sources
-set(SOURCES
-    src/main.cpp
+add_library(${PROJECT_NAME}_objs OBJECT
     src/bot/handlers/on_start_command.cpp
     src/bot/handlers/on_help_command.cpp
     src/bot/utils/get_bot_commands.cpp
     src/bot/utils/get_bot_description.cpp
 )
-
-# The Service
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} PRIVATE userver::postgresql
+target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql
     TgBot
     ${CMAKE_THREAD_LIBS_INIT}
     ${OPENSSL_LIBRARIES}
@@ -59,12 +40,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE userver::postgresql
     ${CURL_LIBRARIES}
 )
 
+# The Service
+add_executable(${PROJECT_NAME} src/main.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
+
 # Unit Tests
-# add_executable(${PROJECT_NAME}_unittest
-#     src/hello_test.cpp
-# )
-# target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
-# add_google_tests(${PROJECT_NAME}_unittest)
+add_executable(${PROJECT_NAME}_unittest
+    unittests/bot_utils_test.cpp
+)
+target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
+add_google_tests(${PROJECT_NAME}_unittest)
 
 
 # Install
