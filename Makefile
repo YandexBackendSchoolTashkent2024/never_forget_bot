@@ -4,7 +4,6 @@ CMAKE_DEBUG_FLAGS ?= -DUSERVER_SANITIZE='addr ub'
 CMAKE_RELEASE_FLAGS ?=
 NPROCS ?= $(shell nproc)
 CLANG_FORMAT ?= clang-format
-DOCKER = docker
 DOCKER_COMPOSE ?= docker-compose
 
 CMAKE_DEBUG_FLAGS += -DCMAKE_BUILD_TYPE=Debug $(CMAKE_COMMON_FLAGS)
@@ -100,82 +99,7 @@ docker-clean-data:
 	rm -rf ./.pgdata
 
 
-# Check if .env exists and include it
-ifeq ($(shell test -e .env && echo yes),yes)
-    include .env
-endif
-
-args := $(wordlist 2, 100, $(MAKECMDGOALS))
-ifndef args
-MESSAGE = "No such command (or you pass two or many targets to ). List of possible commands: make help"
-else
-MESSAGE = "Done"
-endif
-
-
-HELP_FUN = \
-	%help; while(<>){push@{$$help{$$2//'options'}},[$$1,$$3] \
-	if/^([\w-_]+)\s*:.*\#\#(?:@(\w+))?\s(.*)$$/}; \
-    print"$$_:\n", map"  $$_->[0]".(" "x(20-length($$_->[0])))."$$_->[1]\n",\
-    @{$$help{$$_}},"\n" for keys %help; \
-
-
-# Commands
-.PHONY: help
-help: ##@Help Show this help
-	@echo -e "Usage: make [target] ...\n"
-	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
-
-
-.PHONY: env
-env:  ##@Environment Create .env file with variables
-	@$(eval SHELL:=/bin/bash)
-	@cp .env.example .env
-
-.PHONY: docker-up
-docker-up: ##@Application Docker up
-	$(DOCKER_COMPOSE) up --remove-orphans
-
-.PHONY: docker-up-d
-docker-up-d: ##@Application Docker up detach
-	$(DOCKER_COMPOSE) up -d --remove-orphans
-
-.PHONY: docker-build
-docker-build: ##@Application Docker build
-	$(DOCKER_COMPOSE) build
-
-.PHONY: docker-up-build
-docker-up-build: ##@Application Docker up detach with build
-	$(DOCKER_COMPOSE) up -d --build --remove-orphans
-
-.PHONY: docker-down
-docker-down: ##@Application Docker down
-	$(DOCKER_COMPOSE) down
-
-.PHONY: docker-stop
-docker-stop: ##@Application Docker stop some app
-	$(DOCKER_COMPOSE) stop $(args)
-
-.PHONY: docker-clean
-docker-clean: ##@Application Docker prune -f
-	$(DOCKER) image prune -f
-
-.PHONY: docker
-docker: docker-clean docker-build docker-up-d docker-clean ##@Application Docker prune, up, run and prune
-
-.PHONY: open
-open: ##@Docker Open container in docker
-	$(DOCKER) exec -it $(args) /bin/bash
-
-.PHONY: docker-run
-docker-run: ##@Docker Run sh in paused docker container
-	$(DOCKER) run --rm -it --entrypoint bash $(args)
-
-.PHONY: docker-test
-docker-test: ##@Docker Run sh in paused docker container
-	$(DOCKER_COMPOSE) run --rm bot make test
-
-# New Migrate Command
+# Migrate Command
 .PHONY: migrate
 migrate: docker-up-d ##@Migration Run database migrations
 	@echo "POSTGRES_USER=$(POSTGRES_USER)"
@@ -193,7 +117,7 @@ migrate: docker-up-d ##@Migration Run database migrations
 		attempts=`expr $$attempts + 1`; \
 	done
 	@echo "PostgreSQL is ready. Running migrations..."
-	@for file in migrations/*.sql; do \
+	@for file in postgresql/migrations/*.sql; do \
 		echo "Applying $$file..."; \
 		cat $$file | $(DOCKER_COMPOSE) exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) || { echo "Migration $$file failed."; exit 1; }; \
 	done
