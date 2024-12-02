@@ -1,3 +1,5 @@
+name: never_forget_bot
+
 services:
     postgres:
         container_name: service-postgres

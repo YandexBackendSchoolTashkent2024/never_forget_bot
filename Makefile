@@ -79,6 +79,11 @@ export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@servi
 		--config /root/.local/etc/never_forget_bot/static_config.yaml \
 		--config_vars /root/.local/etc/never_forget_bot/config_vars.docker.yaml
 
+# Build and run service in detached docker environment
+.PHONY: docker-detached-start-debug docker-detached-start-release
+docker-detached-start-debug docker-detached-start-release: docker-detached-start-%:
+	$(DOCKER_COMPOSE) run -p 8080:8080 -d --rm never_forget_bot-container make -- --in-docker-start-$*
+
 # Build and run service in docker environment
 .PHONY: docker-start-debug docker-start-release
 docker-start-debug docker-start-release: docker-start-%:
@@ -98,16 +103,18 @@ docker-clean-data:
 	$(DOCKER_COMPOSE) down -v
 	rm -rf ./.pgdata
 
+include .env
+export
 
 # Migrate Command
 .PHONY: migrate
-migrate: docker-up-d ##@Migration Run database migrations
+migrate: docker-detached-start-debug ##@Migration Run database migrations
 	@echo "POSTGRES_USER=$(POSTGRES_USER)"
-	@echo "POSTGRES_DB=$(POSTGRES_DB)"
+	@echo "POSTGRES_DB=${POSTGRES_DB}"
 	@echo "Waiting for PostgreSQL to be ready..."
 	attempts=0; \
 	max_attempts=30; \
-	while ! $(DOCKER_COMPOSE) exec postgres pg_isready -U $(POSTGRES_USER) -d $(POSTGRES_DB) > /dev/null 2>&1; do \
+	while ! $(DOCKER_COMPOSE) exec postgres pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} > /dev/null 2>&1; do \
 		if [ $$attempts -ge $$max_attempts ]; then \
 			echo "PostgreSQL is not ready after $$max_attempts attempts. Exiting."; \
 			exit 1; \
@@ -119,6 +126,6 @@ migrate: docker-up-d ##@Migration Run database migrations
 	@echo "PostgreSQL is ready. Running migrations..."
 	@for file in postgresql/migrations/*.sql; do \
 		echo "Applying $$file..."; \
-		cat $$file | $(DOCKER_COMPOSE) exec -T postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) || { echo "Migration $$file failed."; exit 1; }; \
+		cat $$file | $(DOCKER_COMPOSE) exec -T postgres psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} || { echo "Migration $$file failed."; exit 1; }; \
 	done
 	@echo "Migrations completed successfully."
