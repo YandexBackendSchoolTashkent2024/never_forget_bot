@@ -1,6 +1,6 @@
 [submodule "third_party/userver"]
 	path = third_party/userver
 	url = https://github.com/userver-framework/userver.git
-[submodule "third_party/tgbot-cpp"]
-	path = third_party/tgbot-cpp
+[submodule "third_party/tgbot_cpp"]
+	path = third_party/tgbot_cpp
 	url = https://github.com/reo7sp/tgbot-cpp.git

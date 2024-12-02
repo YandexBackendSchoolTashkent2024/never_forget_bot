@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE "user" (
+CREATE TABLE IF NOT EXISTS "user" (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "telegram_id" INTEGER NOT NULL UNIQUE,
     "username" VARCHAR(255) UNIQUE,
@@ -11,7 +11,7 @@ CREATE TABLE "user" (
 
 CREATE TYPE "token_type" AS ENUM ('YANDEX_CALENDAR', 'YANDEX_GPT');
 
-CREATE TABLE "token" (
+CREATE TABLE IF NOT EXISTS "token" (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "type" "token_type" NOT NULL,
     "token" VARCHAR(255) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE "token" (
 CREATE TYPE "event_type" AS ENUM ('WHILE_NOT_DONE', 'ONE_TIME');
 CREATE TYPE "event_status" AS ENUM ('PENDING', 'COMPLETED', 'NOT_COMPLETED');
 
-CREATE TABLE "event" (
+CREATE TABLE IF NOT EXISTS "event" (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "user_id" UUID NOT NULL,
     "name" VARCHAR(255) NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE "event" (
             ON UPDATE CASCADE
 );
 
-CREATE TABLE "notification" (
+CREATE TABLE IF NOT EXISTS "notification" (
     "id" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     "event_id" UUID NOT NULL,
     "time" TIMESTAMPTZ NOT NULL,

@@ -1,89 +1,44 @@
-#include <csignal>
-#include <cstdio>
 #include <cstdlib>
-#include <exception>
-#include <string>
-#include <vector>
-
+#include <userver/components/minimal_server_component_list.hpp>
+#include <userver/storages/postgres/component.hpp>
+#include <userver/clients/http/component.hpp>
+#include <userver/utils/daemon_run.hpp>
 #include <tgbot/tgbot.h>
 
-using namespace std;
-using namespace TgBot;
+#include "bot/handlers/command_handlers.hpp"
+#include "bot/utils/utils.hpp"
 
-void createOneColumnKeyboard(const vector<string>& buttonStrings, ReplyKeyboardMarkup::Ptr& kb)
-{
-  for (size_t i = 0; i < buttonStrings.size(); ++i) {
-    vector<KeyboardButton::Ptr> row;
-    KeyboardButton::Ptr button(new KeyboardButton);
-    button->text = buttonStrings[i];
-    row.push_back(button);
-    kb->keyboard.push_back(row);
-  }
-}
+int main(int argc, char* argv[]) {
+  auto component_list = userver::components::MinimalServerComponentList()
+                  .Append<userver::components::Postgres>("postgres-db-1")
+                  .Append<userver::components::HttpClient>();
 
-void createKeyboard(const vector<vector<string>>& buttonLayout, ReplyKeyboardMarkup::Ptr& kb)
-{
-  for (size_t i = 0; i < buttonLayout.size(); ++i) {
-    vector<KeyboardButton::Ptr> row;
-    for (size_t j = 0; j < buttonLayout[i].size(); ++j) {
-      KeyboardButton::Ptr button(new KeyboardButton);
-      button->text = buttonLayout[i][j];
-      row.push_back(button);
-    }
-    kb->keyboard.push_back(row);
-  }
-}
+  std::string token(getenv("TOKEN"));;
+  printf("Token: %s\n", token.c_str());
 
+  TgBot::Bot bot(token);
 
-int main() {
-    string token(getenv("TOKEN"));
-    printf("Token: %s\n", token.c_str());
+  bot.getEvents().onCommand("start", [&bot](TgBot::Message::Ptr message) {
+      NeverForgetBot::Commands::onStartCommand(message, bot);
+  });
 
-    Bot bot(token);
+  bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
+      NeverForgetBot::Commands::onHelpCommand(message, bot);
+  });
 
-    ReplyKeyboardMarkup::Ptr keyboardOneCol(new ReplyKeyboardMarkup);
-    createOneColumnKeyboard({"Option 1", "Option 2", "Option 3"}, keyboardOneCol);
+  bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
+      bot.getApi().sendMessage(message->chat->id, "Invalid command");
+  });
 
-    ReplyKeyboardMarkup::Ptr keyboardWithLayout(new ReplyKeyboardMarkup);
-    createKeyboard({
-      {"Dog", "Cat", "Mouse"},
-      {"Green", "White", "Red"},
-      {"On", "Off"},
-      {"Back"},
-      {"Info", "About", "Map", "Etc"}
-    }, keyboardWithLayout);
+  bot.getEvents().onNonCommandMessage([&bot](TgBot::Message::Ptr message) {
+      bot.getApi().sendMessage(message->chat->id, "You typed: " + message->text);
+  });
 
-    bot.getEvents().onCommand("start", [&bot, &keyboardOneCol](Message::Ptr message) {
-        bot.getApi().sendMessage(message->chat->id, "/start for one column keyboard\n/layout for a more complex keyboard", nullptr, nullptr, keyboardOneCol);
-    });
-    bot.getEvents().onCommand("layout", [&bot, &keyboardWithLayout](Message::Ptr message) {
-        bot.getApi().sendMessage(message->chat->id, "/start for one column keyboard\n/layout for a more complex keyboard", nullptr, nullptr, keyboardWithLayout);
-    });
-    bot.getEvents().onAnyMessage([&bot](Message::Ptr message) {
-        printf("User wrote %s\n", message->text.c_str());
-        if (StringTools::startsWith(message->text, "/start") || StringTools::startsWith(message->text, "/layout")) {
-            return;
-        }
-        bot.getApi().sendMessage(message->chat->id, "Your message is: " + message->text);
-    });
+  std::thread botThread(NeverForgetBot::Utils::startLongPolling, std::ref(bot));
 
-    signal(SIGINT, [](int s) {
-        printf("SIGINT got\n");
-        exit(0);
-    });
+  userver::utils::DaemonMain(argc, argv, component_list);
 
-    try {
-        printf("Bot username: %s\n", bot.getApi().getMe()->username.c_str());
-        bot.getApi().deleteWebhook();
+  botThread.join();
 
-        TgLongPoll longPoll(bot);
-        while (true) {
-            printf("Long poll started\n");
-            longPoll.start();
-        }
-    } catch (exception& e) {
-        printf("error: %s\n", e.what());
-    }
-
-    return 0;
+  return 0;
 }

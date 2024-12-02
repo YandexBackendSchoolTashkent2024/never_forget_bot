@@ -8,7 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+build*/
 develop-eggs/
 dist/
 downloads/
@@ -115,3 +115,12 @@ venv.bak/
 *.db
 # *.sql
 *.csv
+
+compile_commands.json
+.ccache/
+.cores/
+.pgdata/
+cmake-build-*
+Testing/
+.DS_Store
+Makefile.local
