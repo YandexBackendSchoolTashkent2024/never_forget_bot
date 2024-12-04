@@ -4,8 +4,8 @@ services:
         image: postgres:latest
         environment: &db_env
             POSTGRES_DB: never_forget_bot_db-1
-            POSTGRES_USER: user
-            POSTGRES_PASSWORD: password
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
         ports:
             - 5432
         volumes:
@@ -18,7 +18,7 @@ services:
         image: ghcr.io/userver-framework/ubuntu-22.04-userver-pg:latest
         privileged: true
         env_file:
-            - path: .env
+            - .env
         environment:
             <<: *db_env
             PREFIX: ${PREFIX:-~/.local}
