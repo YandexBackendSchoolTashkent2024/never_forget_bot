@@ -6,4 +6,4 @@ is-testing: false
 
 server-port: 8080
 
-dbconnection: "postgresql://user:password@localhost:5432/never_forget_bot_db-1"
+dbconnection: "postgresql://pguser:pgpswd@localhost:5432/never_forget_bot_db-1"
