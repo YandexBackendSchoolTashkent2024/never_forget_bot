@@ -22,10 +22,10 @@ jobs:
       run: |
         echo "${{ secrets.ENV }}" > .env;
         git submodule update --init
-        sudo make docker
+        sudo make docker-detached-start-release
     - name: Test
       run: |
-        sudo make docker-test
+        sudo make docker-test-release
   deploy:
     name: Deploy
     needs: build
