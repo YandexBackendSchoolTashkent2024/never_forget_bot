@@ -10,7 +10,13 @@ services:
             - 5432
         volumes:
             - ./postgresql/schemas:/docker-entrypoint-initdb.d
-            - ./.pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
+        restart: unless-stopped
         networks:
             - postgres
 
@@ -31,7 +37,8 @@ services:
             - 8080:8080
         working_dir: /never_forget_bot
         depends_on:
-            - postgres
+            postgres:
+                condition: service_healthy
         networks:
             - postgres
 

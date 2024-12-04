@@ -103,8 +103,16 @@ docker-clean-data:
 	$(DOCKER_COMPOSE) down -v
 	rm -rf ./.pgdata
 
-include .env
-export
+.PHONY: env
+env:  ##@Environment Create .env file with variables
+	@$(eval SHELL:=/bin/bash)
+	@cp .env.example .env
+
+
+# Check if .env exists and include it
+ifeq ($(shell test -e .env && echo yes),yes)
+    include .env
+endif
 
 # Migrate Command
 .PHONY: migrate
