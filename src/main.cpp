@@ -9,12 +9,14 @@
 #include "bot/utils/utils.hpp"
 
 int main(int argc, char* argv[]) {
-  auto component_list = userver::components::MinimalServerComponentList()
-                  .Append<userver::components::Postgres>("postgres-db-1")
-                  .Append<userver::components::HttpClient>();
-
-  std::string token(getenv("TOKEN"));;
+  std::string db_name(getenv("POSTGRES_DB"));
+  std::string token(getenv("TOKEN"));
   printf("Token: %s\n", token.c_str());
+  printf("Postgres DB: %s\n", db_name.c_str());
+
+  auto component_list = userver::components::MinimalServerComponentList()
+                  .Append<userver::components::Postgres>(db_name)
+                  .Append<userver::components::HttpClient>();
 
   TgBot::Bot bot(token);
 

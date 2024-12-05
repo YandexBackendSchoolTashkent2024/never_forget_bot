@@ -35,7 +35,7 @@ components_manager:
             load-enabled: $is-testing
             fs-task-processor: fs-task-processor
 
-        postgres-db-1:
+        never_forget_bot_db-1:
             dbconnection: $dbconnection
             dbconnection#env: DB_CONNECTION
             blocking_task_processor: fs-task-processor
