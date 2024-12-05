@@ -10,6 +10,33 @@ CMAKE_DEBUG_FLAGS += -DCMAKE_BUILD_TYPE=Debug $(CMAKE_COMMON_FLAGS)
 CMAKE_RELEASE_FLAGS += -DCMAKE_BUILD_TYPE=Release $(CMAKE_COMMON_FLAGS)
 
 
+# Check if .env exists and include it
+ifeq ($(shell test -e .env && echo yes),yes)
+    include .env
+endif
+
+args := $(wordlist 2, 100, $(MAKECMDGOALS))
+ifndef args
+MESSAGE = "No such command (or you pass two or many targets to ). List of possible commands: make help"
+else
+MESSAGE = "Done"
+endif
+
+HELP_FUN = \
+	%help; while(<>){push@{$$help{$$2//'options'}},[$$1,$$3] \
+	if/^([\w-_]+)\s*:.*\#\#(?:@(\w+))?\s(.*)$$/}; \
+    print"$$_:\n", map"  $$_->[0]".(" "x(20-length($$_->[0])))."$$_->[1]\n",\
+    @{$$help{$$_}},"\n" for keys %help; \
+
+
+# Commands
+
+.PHONY: help
+help: ##@Help Show this help
+	@echo -e "Usage: make [target] ...\n"
+	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
+
+
 .PHONY: all
 all: test-debug test-release
 
@@ -30,16 +57,19 @@ build_release/CMakeCache.txt: cmake-release
 build-debug build-release: build-%: build_%/CMakeCache.txt
 	cmake --build build_$* -j $(NPROCS) --target never_forget_bot
 
-# Test
 .PHONY: test-debug test-release
-test-debug test-release: test-%: build-%
-	cmake --build build_$* -j $(NPROCS) --target never_forget_bot_unittest
-	cd build_$* && ((test -t 1 && GTEST_COLOR=1 PYTEST_ADDOPTS="--color=yes" ctest -V) || ctest -V)
+test-debug: build-debug ##@Test Run tests in debug mode
+	cmake --build build_debug -j $(NPROCS) --target never_forget_bot_unittest
+	cd build_debug && ((test -t 1 && GTEST_COLOR=1 ctest -V) || ctest -V)
+test-release: build-release ##@Test Run tests in release mode
+	cmake --build build_release -j $(NPROCS) --target never_forget_bot_unittest
+	cd build_release && ((test -t 1 && GTEST_COLOR=1 ctest -V) || ctest -V)
 
-# Start the service (via testsuite service runner)
 .PHONY: start-debug start-release
-start-debug start-release: start-%: build-%
-	cmake --build build_$* -v --target never_forget_bot
+start-debug: build-debug ##@LocalStart Build and start the service for debug mode
+	cmake --build build_debug -v --target never_forget_bot
+start-release: build-release ##@LocalStart Build and start the service for release mode
+	cmake --build build_release -v --target never_forget_bot
 
 .PHONY: service-start-debug service-start-release
 service-start-debug service-start-release: service-start-%: start-%
@@ -50,10 +80,8 @@ clean-debug clean-release: clean-%:
 	cmake --build build_$* --target clean
 
 .PHONY: dist-clean
-dist-clean:
+dist-clean: ##@Cleanup Destroy build directories
 	rm -rf build_*
-	rm -rf tests/__pycache__/
-	rm -rf tests/.pytest_cache/
 
 # Install
 .PHONY: install-debug install-release
@@ -79,27 +107,28 @@ export DB_CONNECTION := postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@servi
 		--config /root/.local/etc/never_forget_bot/static_config.yaml \
 		--config_vars /root/.local/etc/never_forget_bot/config_vars.docker.yaml
 
-# Build and run service in detached docker environment
 .PHONY: docker-detached-start-debug docker-detached-start-release
-docker-detached-start-debug docker-detached-start-release: docker-detached-start-%:
-	$(DOCKER_COMPOSE) run -p 8080:8080 -d --rm never_forget_bot-container make -- --in-docker-start-$*
+docker-d-start-debug: ##@DockerDetached Build and run in docker detached mode
+	$(DOCKER_COMPOSE) run -p 8080:8080 -d --rm never_forget_bot-container make -- --in-docker-start-debug
+docker-d-start-release:
+	$(DOCKER_COMPOSE) run -p 8080:8080 -d --rm never_forget_bot-container make -- --in-docker-start-release
 
-# Build and run service in docker environment
 .PHONY: docker-start-debug docker-start-release
-docker-start-debug docker-start-release: docker-start-%:
-	$(DOCKER_COMPOSE) run -p 8080:8080 --rm never_forget_bot-container make -- --in-docker-start-$*
+docker-start-debug: ##@DockerStart Build and run service in docker environment
+	$(DOCKER_COMPOSE) run -p 8080:8080 --rm never_forget_bot-container make -- --in-docker-start-debug
+docker-start-release: ##@DockerStart Build and run service in docker environment
+	$(DOCKER_COMPOSE) run -p 8080:8080 --rm never_forget_bot-container make -- --in-docker-start-release
 
 .PHONY: docker-start-service-debug docker-start-service-release
 docker-start-service-debug docker-start-service-release: docker-start-service-%: docker-start-%
 
-# Start targets makefile in docker environment
 .PHONY: docker-cmake-debug docker-build-debug docker-test-debug docker-clean-debug docker-install-debug docker-cmake-release docker-build-release docker-test-release docker-clean-release docker-install-release
 docker-cmake-debug docker-build-debug docker-test-debug docker-clean-debug docker-install-debug docker-cmake-release docker-build-release docker-test-release docker-clean-release docker-install-release: docker-%:
 	$(DOCKER_COMPOSE) run --rm never_forget_bot-container make $*
 
-# Stop docker container and remove PG data
+
 .PHONY: docker-clean-data
-docker-clean-data:
+docker-clean-data: ##@DataPurge Stop docker container and remove PG data
 	$(DOCKER_COMPOSE) down -v
 	rm -rf ./.pgdata
 
@@ -108,11 +137,6 @@ env:  ##@Environment Create .env file with variables
 	@$(eval SHELL:=/bin/bash)
 	@cp .env.example .env
 
-
-# Check if .env exists and include it
-ifeq ($(shell test -e .env && echo yes),yes)
-    include .env
-endif
 
 # Migrate Command
 .PHONY: migrate
