@@ -37,6 +37,7 @@ jobs:
     - name: Deploy application to remote server
       run: |
         echo "${{ secrets.ENV }}" > .env;
+        git submodule update --init
         tar -czf app.tar.gz * .env
         ls -la
         mkdir -p ~/.ssh
