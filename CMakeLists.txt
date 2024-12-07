@@ -46,8 +46,41 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
 add_executable(${PROJECT_NAME}_unittest
     unittests/bot_utils_test.cpp
 )
+
+# target_include_directories(${PROJECT_NAME}
+#     PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}/src/parse_msg/jwt-cpp/include
+# )
+
+# Add parse_msg sources
+set(PARSE_MSG_SOURCES
+    src/parse_msg/checker.cpp
+    src/parse_msg/parse.cpp
+    src/parse_msg/generate_aim.cpp
+    src/parse_msg/parse_request.cpp
+    src/parse_msg/env_parser.cpp
+)
+
+# Add them to the main executable
+target_sources(${PROJECT_NAME} PRIVATE ${PARSE_MSG_SOURCES})
+
 target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
 add_google_tests(${PROJECT_NAME}_unittest)
+
+find_package(OpenSSL REQUIRED)
+find_package(CURL REQUIRED)
+target_link_libraries(${PROJECT_NAME}_objs
+    PUBLIC
+    userver::postgresql
+    TgBot
+    ${CMAKE_THREAD_LIBS_INIT}
+    ${OPENSSL_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${CURL_LIBRARIES}
+)
+
+# If needed, also link these to the main target:
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES})
 
 
 # Install
