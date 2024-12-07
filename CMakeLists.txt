@@ -31,6 +31,7 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/bot/utils/utils.cpp
     src/ai/ai.cpp
     src/event-creator/event-creator.cpp
+    src/bot/bot.cpp
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql
     TgBot
