@@ -52,6 +52,10 @@ add_executable(${PROJECT_NAME}_unittest
 #     ${CMAKE_CURRENT_SOURCE_DIR}/src/parse_msg/jwt-cpp/include
 # )
 
+# Add jwt-cpp include directory
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/jwt-cpp/include)
+
+
 # Add parse_msg sources
 set(PARSE_MSG_SOURCES
     src/parse_msg/checker.cpp
