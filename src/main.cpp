@@ -7,12 +7,12 @@
 
 int main() {
     // Load environment variables
-    const char* botToken = std::getenv("TELEGRAM_BOT_TOKEN");
-    const char* dbHost = std::getenv("DB_HOST");
-    const char* dbPort = std::getenv("DB_PORT");
-    const char* dbName = std::getenv("DB_NAME");
-    const char* dbUser = std::getenv("DB_USER");
-    const char* dbPassword = std::getenv("DB_PASSWORD");
+    const char* botToken = std::getenv("TOKEN");
+    const char* dbHost = std::getenv("POSTGRES_HOST");
+    const char* dbPort = std::getenv("POSTGRES_PORT");
+    const char* dbName = std::getenv("POSTGRES_DB");
+    const char* dbUser = std::getenv("POSTGRES_USER");
+    const char* dbPassword = std::getenv("POSTGRES_PASSWORD");
 
     if (!botToken || !dbHost || !dbPort || !dbName || !dbUser || !dbPassword) {
         std::cerr << "Missing environment variables. Please check your .env file.\n";
