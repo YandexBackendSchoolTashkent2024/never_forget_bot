@@ -46,5 +46,5 @@ jobs:
         ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@158.160.128.8 "
         cd app
         tar -xzf app.tar.gz
-        sudo make docker-up-d
-        exit" 
+        sudo make docker-detached-start-release
+        exit"
