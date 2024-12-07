@@ -4,9 +4,10 @@
 #include <userver/clients/http/component.hpp>
 #include <userver/utils/daemon_run.hpp>
 #include <tgbot/tgbot.h>
-
+#include "ai/ai.hpp"
 #include "bot/handlers/command_handlers.hpp"
 #include "bot/utils/utils.hpp"
+#include "event-creator/event-creator.hpp"
 
 int main(int argc, char* argv[]) {
   std::string db_name(getenv("POSTGRES_DB"));
@@ -17,6 +18,9 @@ int main(int argc, char* argv[]) {
   auto component_list = userver::components::MinimalServerComponentList()
                   .Append<userver::components::Postgres>(db_name)
                   .Append<userver::components::HttpClient>();
+
+  never_forget_bot::AppendAI(component_list);
+  never_forget_bot::AppendEventCreator(component_list);
 
   TgBot::Bot bot(token);
 

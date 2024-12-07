@@ -29,6 +29,8 @@ add_subdirectory(third_party/tgbot_cpp)
 add_library(${PROJECT_NAME}_objs OBJECT
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
+    src/ai/ai.cpp
+    src/event-creator/event-creator.cpp
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql
     TgBot
