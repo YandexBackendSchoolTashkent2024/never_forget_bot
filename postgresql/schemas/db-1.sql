@@ -1,3 +1,0 @@
-DROP SCHEMA IF EXISTS never_forget_bot CASCADE;
-
-CREATE SCHEMA IF NOT EXISTS never_forget_bot;
