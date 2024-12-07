@@ -9,6 +9,9 @@ namespace never_forget_bot {
 class AI {
     public:
     static constexpr std::string_view kName = "ai-component";
+    AI(const userver::components::ComponentConfig& config,
+     const userver::components::ComponentContext& context);
+     
      Event GenerateEventFromMessage(const std::string& message) {
   };
 };
