@@ -1,0 +1,9 @@
+worker-threads: 4
+worker-fs-threads: 2
+logger-level: info
+
+is-testing: false
+
+server-port: 8080
+
+dbconnection: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
