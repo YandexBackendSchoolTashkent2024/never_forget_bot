@@ -22,10 +22,7 @@ jobs:
       run: |
         echo "${{ secrets.ENV }}" > .env;
         git submodule update --init
-        sudo make docker-build-release
-    - name: Test
-      run: |
-        sudo make docker-test-release
+        sudo docker-compose build
   deploy:
     name: Deploy
     needs: build
@@ -39,7 +36,6 @@ jobs:
         echo "${{ secrets.ENV }}" > .env;
         git submodule update --init
         tar -czf app.tar.gz * .env
-        ls -la
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_KEY }}" | tr -d '\r' > ~/.ssh/deploy_key
         sudo chmod 600 ~/.ssh/deploy_key
@@ -47,5 +43,5 @@ jobs:
         ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@158.160.128.8 "
         cd app
         tar -xzf app.tar.gz
-        sudo make docker-d-start-release
+        sudo docker-compose up -d
         exit"
