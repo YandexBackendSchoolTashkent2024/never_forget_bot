@@ -4,3 +4,6 @@
 [submodule "third_party/tgbot_cpp"]
 	path = third_party/tgbot_cpp
 	url = https://github.com/reo7sp/tgbot-cpp.git
+[submodule "third_party/jwt-cpp"]
+	path = third_party/jwt-cpp
+	url = https://github.com/Thalhammer/jwt-cpp.git
