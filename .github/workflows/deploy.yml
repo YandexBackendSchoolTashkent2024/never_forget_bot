@@ -43,5 +43,5 @@ jobs:
         ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no ubuntu@158.160.128.8 "
         cd app
         tar -xzf app.tar.gz
-        sudo docker-compose up -d
+        sudo docker-compose up -d --build
         exit"
