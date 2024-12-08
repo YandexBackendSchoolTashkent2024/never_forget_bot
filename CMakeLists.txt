@@ -28,6 +28,8 @@ add_executable(TelegramBot
     src/db/users.cpp
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
+    src/chrono/periodic_task.cpp
+    
 
     # Add the parse_msg files
     src/parse_msg/parse.cpp
