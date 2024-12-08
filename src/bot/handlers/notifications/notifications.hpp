@@ -9,4 +9,4 @@ namespace NeverForgetBot::Notifications {
 
     void createNotificationKeyboard();
 
-}
+} // namespace NeverForgetBot::Notifications

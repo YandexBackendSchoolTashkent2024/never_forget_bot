@@ -58,4 +58,4 @@ namespace NeverForgetBot::Events {
         bot.getApi().sendMessage(chat_id, message);
     }
 
-}
+} // namespace NeverForgetBot::Events
