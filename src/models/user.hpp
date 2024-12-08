@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <optional>
 
@@ -7,7 +9,7 @@ using namespace std;
 
 struct User {
     string id;
-    long telegram_id;
+    long long telegram_id;
     optional<string> username;
     string name;
     string created_at;

@@ -28,13 +28,13 @@ add_executable(NeverForgetBot
     src/db/users.cpp
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
-
-    # Add the parse_msg files
     src/parse_msg/parse.cpp
     src/parse_msg/generate_aim.cpp
     src/parse_msg/parse_request.cpp
     src/parse_msg/checker.cpp
     src/parse_msg/env_parser.cpp
+    src/bot/handlers/notifications/notifications.cpp
+    src/bot/handlers/events/events.cpp
 )
 
 target_link_libraries(NeverForgetBot
