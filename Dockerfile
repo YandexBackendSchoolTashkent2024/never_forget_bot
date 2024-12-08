@@ -32,6 +32,9 @@ WORKDIR /usr/src/app
 COPY CMakeLists.txt ./
 COPY src/ src/
 
+# Copy the jwt-cpp third-party submodule
+COPY third-party/jwt-cpp third-party/jwt-cpp
+
 # Build the application
 RUN cmake .
 RUN make
