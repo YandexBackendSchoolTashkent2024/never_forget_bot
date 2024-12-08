@@ -63,6 +63,12 @@ int main() {
     bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onHelpCommand(message, bot);
     });
+    
+    bot.getEvents().onCommand("upcoming_events", [&bot, &db](TgBot::Message::Ptr message) {
+        long telegram_id = message->from->id;
+
+        db.getEventsOrderedByTimeDesc(bot, telegram_id);
+    });
 
     bot.getEvents().onCommand("notify", [&bot](TgBot::Message::Ptr message) {
             NeverForgetBot::Notification notification {
