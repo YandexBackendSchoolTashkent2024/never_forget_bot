@@ -44,11 +44,7 @@ std::optional<std::string> Database::insertUser(long telegram_id, const std::opt
     }
 }
 
-<<<<<<< HEAD
-bool Database::updateUserTimeZone(long telegram_id, const std::string& timezone) {
-=======
 bool Database::updateUserTimeZone(long telegram_id, const int& offset) {
->>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
     if (!conn || !conn->is_open()) {
         std::cerr << "Database connection is not open\n";
         return false;
@@ -57,11 +53,7 @@ bool Database::updateUserTimeZone(long telegram_id, const int& offset) {
     try {
         pqxx::work txn(*conn);
         std::string query = 
-<<<<<<< HEAD
-            "UPDATE \"user\" SET \"timezone\" = " + txn.quote(timezone) + ", \"updated_at\" = NOW() "
-=======
             "UPDATE \"user\" SET \"timezone\" = " + txn.quote(offset) + ", \"updated_at\" = NOW() "
->>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
             "WHERE \"telegram_id\" = " + txn.quote(telegram_id) + ";";
 
         txn.exec(query);
@@ -72,8 +64,6 @@ bool Database::updateUserTimeZone(long telegram_id, const int& offset) {
         return false;
     }
 }
-<<<<<<< HEAD
-=======
 
 int Database::getUserTimeZone(long telegram_id) {
     if (!conn || !conn->is_open()) {
@@ -100,5 +90,4 @@ int Database::getUserTimeZone(long telegram_id) {
     }
 }
 
->>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
 }

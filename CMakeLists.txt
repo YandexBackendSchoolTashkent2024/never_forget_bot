@@ -30,12 +30,6 @@ add_executable(NeverForgetBot
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
     src/chrono/periodic_task.cpp
-<<<<<<< HEAD
-    
-
-    # Add the parse_msg files
-=======
->>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
     src/parse_msg/parse.cpp
     src/parse_msg/generate_aim.cpp
     src/parse_msg/parse_request.cpp

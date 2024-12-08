@@ -1,9 +1,8 @@
-<<<<<<< HEAD
+// src/db/db.cpp
+
 #include "db.hpp"
 #include <iostream>
-#include <pqxx/pqxx>
-#include <vector>
-#include <tuple>
+#include "../bot/handlers/events/events.hpp"
 
 namespace NeverForgetBot {
 
@@ -13,52 +12,10 @@ std::vector<std::tuple<std::string, std::string, std::string, std::string>> Data
     if (!conn || !conn->is_open()) {
         std::cerr << "Database connection is not open\n";
         return notifications;
-=======
-// src/db/db.cpp
-
-#include "db.hpp"
-#include <iostream>
-#include "../bot/handlers/events/events.hpp"
-
-namespace NeverForgetBot {
-
-EventStatus mapStatus(const std::string& statusStr) {
-    if (statusStr == "PENDING") {
-        return EventStatus::PENDING;
-    } else if (statusStr == "COMPLETED") {
-        return EventStatus::COMPLETED;
-    } else if (statusStr == "NOT_COMPLETED") {
-        return EventStatus::NOT_COMPLETED;
-    } else {
-        throw std::invalid_argument("Unknown status: " + statusStr);
-    }
-}
-
-// If status is stored as an integer
-EventStatus mapStatus(int statusInt) {
-    switch (statusInt) {
-        case 0:
-            return EventStatus::PENDING;
-        case 1:
-            return EventStatus::COMPLETED;
-        case 2:
-            return EventStatus::NOT_COMPLETED;
-        default:
-            throw std::invalid_argument("Unknown status code: " + std::to_string(statusInt));
-    }
-}
-
-void Database::getEventsOrderedByTimeDesc(TgBot::Bot &bot, long telegram_id) {
-    std::vector<Event> events;
-
-    if (!conn || !conn->is_open()) {
-        std::cerr << "Database connection is not open\n";
->>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
     }
 
     try {
         pqxx::work txn(*conn);
-<<<<<<< HEAD
         std::string query = R"(
             SELECT n.id, u.telegram_id, e.name, n.time
             FROM "notification" n
@@ -113,8 +70,41 @@ bool Database::updateSentTimeForNotification(const std::string& notification_id)
     }
 }
 
-} // namespace NeverForgetBot
-=======
+EventStatus mapStatus(const std::string& statusStr) {
+    if (statusStr == "PENDING") {
+        return EventStatus::PENDING;
+    } else if (statusStr == "COMPLETED") {
+        return EventStatus::COMPLETED;
+    } else if (statusStr == "NOT_COMPLETED") {
+        return EventStatus::NOT_COMPLETED;
+    } else {
+        throw std::invalid_argument("Unknown status: " + statusStr);
+    }
+}
+
+// If status is stored as an integer
+EventStatus mapStatus(int statusInt) {
+    switch (statusInt) {
+        case 0:
+            return EventStatus::PENDING;
+        case 1:
+            return EventStatus::COMPLETED;
+        case 2:
+            return EventStatus::NOT_COMPLETED;
+        default:
+            throw std::invalid_argument("Unknown status code: " + std::to_string(statusInt));
+    }
+}
+
+void Database::getEventsOrderedByTimeDesc(TgBot::Bot &bot, long telegram_id) {
+    std::vector<Event> events;
+
+    if (!conn || !conn->is_open()) {
+        std::cerr << "Database connection is not open\n";
+    }
+
+    try {
+        pqxx::work txn(*conn);
         
         std::string user_id_query = "SELECT id FROM \"user\" WHERE telegram_id = " + txn.quote(telegram_id) + ";";
         pqxx::result user_result = txn.exec(user_id_query);
@@ -155,4 +145,3 @@ bool Database::updateSentTimeForNotification(const std::string& notification_id)
 }
 
 }
->>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
