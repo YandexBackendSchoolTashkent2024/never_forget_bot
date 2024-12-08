@@ -2,15 +2,41 @@
 
 #include "db.hpp"
 #include <iostream>
+#include "../bot/handlers/events/events.hpp"
 
 namespace NeverForgetBot {
 
-std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
+EventStatus mapStatus(const std::string& statusStr) {
+    if (statusStr == "PENDING") {
+        return EventStatus::PENDING;
+    } else if (statusStr == "COMPLETED") {
+        return EventStatus::COMPLETED;
+    } else if (statusStr == "NOT_COMPLETED") {
+        return EventStatus::NOT_COMPLETED;
+    } else {
+        throw std::invalid_argument("Unknown status: " + statusStr);
+    }
+}
+
+// If status is stored as an integer
+EventStatus mapStatus(int statusInt) {
+    switch (statusInt) {
+        case 0:
+            return EventStatus::PENDING;
+        case 1:
+            return EventStatus::COMPLETED;
+        case 2:
+            return EventStatus::NOT_COMPLETED;
+        default:
+            throw std::invalid_argument("Unknown status code: " + std::to_string(statusInt));
+    }
+}
+
+void Database::getEventsOrderedByTimeDesc(TgBot::Bot &bot, long telegram_id) {
     std::vector<Event> events;
 
     if (!conn || !conn->is_open()) {
         std::cerr << "Database connection is not open\n";
-        return events;
     }
 
     try {
@@ -22,7 +48,6 @@ std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
         if (user_result.empty()) {
             std::cerr << "No user found with telegram_id: " << telegram_id << std::endl;
             txn.commit();
-            return events;
         }
 
         std::string user_id = user_result[0]["id"].as<std::string>();
@@ -37,12 +62,13 @@ std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
         for (const auto& row : r) {
             Event event;
             event.id = row["id"].as<std::string>();
-            event.userId = row["user_id"].as<std::string>();
+            event.user_id = row["user_id"].as<std::string>();
             event.name = row["name"].as<std::string>();
             event.time = row["time"].as<std::string>();
-            event.status = row["status"].as<std::string>();
-            event.createdAt = row["created_at"].as<std::string>();
-            event.updatedAt = row["updated_at"].as<std::string>();
+            std::string status_str = row["status"].as<std::string>();
+            event.status = mapStatus(status_str);
+            event.created_at = row["created_at"].as<std::string>();
+            event.updated_at = row["updated_at"].as<std::string>();
 
             events.push_back(event);
         }
@@ -51,7 +77,7 @@ std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
         std::cerr << "Select events failed: " << e.what() << std::endl;
     }
 
-    return events;
+    Events::send_events(bot, telegram_id, events);
 }
 
 }

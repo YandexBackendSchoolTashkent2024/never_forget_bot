@@ -6,6 +6,20 @@
 #include "db/db.hpp"
 #include "bot/utils/utils.hpp"
 #include "bot/handlers/command_handlers.hpp"
+#include "bot/handlers/notifications/notifications.hpp"
+#include "models/event.hpp"
+#include "models/notification.hpp"
+
+
+#include "chrono/periodic_task.hpp"
+
+
+#include "parse_msg/checker.hpp"
+#include "parse_msg/parse.hpp"
+#include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <optional>
 
 int main() {
     // Load environment variables
@@ -29,12 +43,21 @@ int main() {
                                 " password=" + std::string(dbPassword);
 
     NeverForgetBot::Database db(connectionStr);
-
+    
     TgBot::Bot bot(botToken);
+
+
+    // here crono job starting 
+    chrono_task::start_periodic_task(db, bot);
+    //
 
     bot.getEvents().onCommand("start", [&bot, &db](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onStartCommand(message, bot);
         NeverForgetBot::Utils::saveUserIfNotExists(message, bot, db);
+    });
+
+    bot.getEvents().onCommand("change_tz",[&bot, &db](TgBot::Message::Ptr message){
+        NeverForgetBot::Commands::onChangeTzCommand(message, bot);
     });
 
     bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
@@ -44,35 +67,92 @@ int main() {
     bot.getEvents().onCommand("upcoming_events", [&bot, &db](TgBot::Message::Ptr message) {
         long telegram_id = message->from->id;
 
-        std::vector<NeverForgetBot::Event> events = db.getEventsOrderedByTimeDesc(telegram_id);
+        // std::vector<NeverForgetBot::Event> events = db.getEventsOrderedByTimeDesc(bot, telegram_id);
+        db.getEventsOrderedByTimeDesc(bot, telegram_id);
 
-        if (events.empty()) {
-            bot.getApi().sendMessage(message->chat->id, "No events found.");
-            return;
-        }
+        // if (events.empty()) {
+        //     bot.getApi().sendMessage(message->chat->id, "No events found.");
+        //     return;
+        // }
 
-        std::string response = "Your Events:\n\n";
-        for (const auto& event : events) {
-            response += "ID: " + event.id + "\n";
-            response += "Name: " + event.name + "\n";
-            response += "Time: " + event.time + "\n";
-            response += "Status: " + event.status + "\n";
-            response += "Created At: " + event.createdAt + "\n";
-            response += "Updated At: " + event.updatedAt + "\n\n";
-        }
+        // std::string response = "Your Events:\n\n";
+        // for (const auto& event : events) {
+        //     response += "ID: " + event.id + "\n";
+        //     response += "Name: " + event.name + "\n";
+        //     response += "Time: " + event.time + "\n";
+        //     response += "Status: " + event.status + "\n";
+        //     response += "Created At: " + event.createdAt + "\n";
+        //     response += "Updated At: " + event.updatedAt + "\n\n";
+        // }
 
-        bot.getApi().sendMessage(message->chat->id, response);
+        // bot.getApi().sendMessage(message->chat->id, response);
+    });
+
+    bot.getEvents().onCommand("notify", [&bot](TgBot::Message::Ptr message) {
+            NeverForgetBot::Notification notification {
+                "notif id",
+                "event id",
+                "notif time",
+                "sent Time",
+                "created at",
+                "updated at"
+            };
+
+            NeverForgetBot::Event event {
+                "event id",
+                "user id",
+                "name",
+                "event time",
+                NeverForgetBot::EventType::ONE_TIME,
+                NeverForgetBot::EventStatus::PENDING,
+                "cretaed",
+                "updated"
+            };
+
+            NeverForgetBot::Notifications::sendNotification(message->chat->id, bot, notification, event);
     });
 
     bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
         bot.getApi().sendMessage(message->chat->id, "Invalid command");
     });
 
+    bot.getEvents().onCallbackQuery([&bot,&db](TgBot::CallbackQuery::Ptr query) {
+        NeverForgetBot::Commands::onCallbackQuery(query, bot,db);
+    });
+
     bot.getEvents().onNonCommandMessage([&bot](TgBot::Message::Ptr message) {
-        bot.getApi().sendMessage(message->chat->id, "You typed: " + message->text);
+        std::string message_text;
+        try {
+            Checker checker = processMessage(message->text);
+
+            message_text += "Event Name: " + checker.getNameEvent() + "\n";
+            message_text += "Event Time: " + checker.getTime() + "\n";
+            message_text += std::string("Event Type: ") +
+                            (checker.getType() == Checker::EventType::ONE_TIME ? "one-time" : "while-not-done") + "\n";
+
+            const auto& notifications = checker.getNotifications();
+            if (!notifications.empty()) {
+                message_text += "Notifications: ";
+                for (const auto& n : notifications) {
+                    message_text += n + " ";
+                }
+                message_text += "\n";
+            } else {
+                message_text += "Notifications: null\n";
+            }
+        } catch (const std::exception& e) {
+            message_text = "Error processing your message: " + std::string(e.what());
+        }
+        if (!message_text.empty()) {
+            bot.getApi().sendMessage(message->chat->id, message_text);
+        } else {
+            bot.getApi().sendMessage(message->chat->id, "I couldn't understand your message. Please try again.");
+        }
     });
 
     NeverForgetBot::Utils::startLongPolling(bot);
+    // here crono job ending
 
+    chrono_task::stop_periodic_task();
     return 0;
 }

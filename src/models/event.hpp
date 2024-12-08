@@ -1,19 +1,31 @@
 #pragma once
 
 #include <string>
-#include <optional>
 
 namespace NeverForgetBot {
 
-struct Event {
-    std::string id;
-    std::string userId;
-    std::string name;
-    std::string time;
-    std::string type;    // Assuming event_type is represented as a string
-    std::string status;  // Assuming event_status is represented as a string
-    std::string createdAt;
-    std::string updatedAt;
+using namespace std;
+
+enum class EventType {
+    WHILE_NOT_DONE,
+    ONE_TIME
 };
 
-} // namespace NeverForgetBot
+enum class EventStatus {
+    PENDING,
+    COMPLETED,
+    NOT_COMPLETED
+};
+
+struct Event {
+    string id;
+    string user_id;
+    string name;
+    string time;
+    EventType type;
+    EventStatus status;
+    string created_at;
+    string updated_at;
+};
+
+}

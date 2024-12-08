@@ -1,5 +1,5 @@
 # Use an official Ubuntu as a parent image
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 # Set environment variables to suppress prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -32,9 +32,12 @@ WORKDIR /usr/src/app
 COPY CMakeLists.txt ./
 COPY src/ src/
 
+# Copy the jwt-cpp third-party submodule
+COPY third-party/jwt-cpp third-party/jwt-cpp
+
 # Build the application
 RUN cmake .
 RUN make
 
 # Set the entrypoint
-CMD ["./TelegramBot"]
+CMD ["./NeverForgetBot"]
