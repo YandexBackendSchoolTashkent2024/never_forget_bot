@@ -18,4 +18,4 @@ namespace NeverForgetBot::Utils {
 
     void startLongPolling(TgBot::Bot& bot);
 
-} // namespace NeverForgetBot::Utils
+}

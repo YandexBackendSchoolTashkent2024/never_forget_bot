@@ -10,7 +10,8 @@ std::optional<std::string> Database::insertUser(long telegram_id, const std::opt
 
     try {
         pqxx::work txn(*conn);
-        std::string query = "INSERT INTO \"user\" (telegram_id, username, name) VALUES (" + txn.quote(telegram_id) + ", ";
+        std::string query = "INSERT INTO \"user\" (telegram_id, username, name) VALUES ("
+                            + txn.quote(telegram_id) + ", ";
 
         if (username.has_value()) {
             query += txn.quote(username.value());
@@ -26,7 +27,7 @@ std::optional<std::string> Database::insertUser(long telegram_id, const std::opt
             query += "NULL";
         }
 
-        query += ") RETURNING telegram_id;";
+        query += ") ON CONFLICT (telegram_id) DO UPDATE SET telegram_id = EXCLUDED.telegram_id RETURNING telegram_id;";
 
         pqxx::result r = txn.exec(query);
         txn.commit();

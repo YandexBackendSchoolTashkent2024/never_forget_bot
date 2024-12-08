@@ -41,10 +41,8 @@ void onStartCommand(TgBot::Message::Ptr message, TgBot::Bot &bot) {
 }
 
 void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
-        // Create an inline keyboard with options for time zones or cities
         TgBot::InlineKeyboardMarkup::Ptr keyboard(new TgBot::InlineKeyboardMarkup);
 
-        // Uzbekistan cities (with time zone information)
         std::vector<TgBot::InlineKeyboardButton::Ptr> uzbekistanRow;
         std::unordered_map<std::string, std::string> UzbTimeZone = {
             {"Ташкент", "user_timez-Tashkent"},
@@ -55,11 +53,10 @@ void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
             std::string cityWithTz = city;
             auto button = std::make_shared<TgBot::InlineKeyboardButton>();
             button->text = cityWithTz;
-            button->callbackData = tz; // Use time zone offset as callback data
+            button->callbackData = tz;
             uzbekistanRow.push_back(button);
         }
 
-        // Russia cities (with time zone information)
         std::vector<TgBot::InlineKeyboardButton::Ptr> russiaRow;
         std::unordered_map<std::string, std::string> RusTimeZone = {
             {"Масква", "user_timez-Moscow"},
@@ -70,15 +67,13 @@ void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
             std::string cityWithTz = city;
             auto button = std::make_shared<TgBot::InlineKeyboardButton>();
             button->text = cityWithTz;
-            button->callbackData = tz; // Use time zone offset as callback data
+            button->callbackData = tz;
             russiaRow.push_back(button);
         }
 
-        // Add rows to the keyboard
         keyboard->inlineKeyboard.push_back(uzbekistanRow);
         keyboard->inlineKeyboard.push_back(russiaRow);
 
-        // Send the message with the inline keyboard
         bot.getApi().sendMessage(
             message->chat->id,
             "Выберите город:",
@@ -120,7 +115,6 @@ void onCallbackQuery(TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, NeverForg
         bot.getApi().sendMessage(query->message->chat->id, "Unknown selection.");
     }
 }
-
 
 } // namespace NeverForgetBot::Commands
 

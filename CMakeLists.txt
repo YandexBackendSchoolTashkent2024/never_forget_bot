@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(TelegramBot)
+project(NeverForgetBot)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -22,24 +22,24 @@ link_directories(${PostgreSQL_LIBRARY_DIRS})
 link_directories(${CURL_LIBRARY_DIRS})
 link_directories(/usr/local/lib) # For tgbot-cpp
 
-add_executable(TelegramBot
+add_executable(NeverForgetBot
     src/main.cpp
     src/db/db.cpp
     src/db/users.cpp
+    src/db/event.cpp
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
     src/chrono/periodic_task.cpp
-    
-
-    # Add the parse_msg files
     src/parse_msg/parse.cpp
     src/parse_msg/generate_aim.cpp
     src/parse_msg/parse_request.cpp
     src/parse_msg/checker.cpp
     src/parse_msg/env_parser.cpp
+    src/bot/handlers/notifications/notifications.cpp
+    src/bot/handlers/events/events.cpp
 )
 
-target_link_libraries(TelegramBot
+target_link_libraries(NeverForgetBot
     TgBot
     pqxx
     pq
