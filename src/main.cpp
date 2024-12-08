@@ -32,9 +32,8 @@ int main() {
                                 " password=" + std::string(dbPassword);
 
     NeverForgetBot::Database db(connectionStr);
-    
-    TgBot::Bot bot(botToken);
 
+    TgBot::Bot bot(botToken);
 
     chrono_task::start_periodic_task(db, bot);
 
@@ -50,7 +49,7 @@ int main() {
     bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onHelpCommand(message, bot);
     });
-    
+
     bot.getEvents().onCommand("upcoming_events", [&bot, &db](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onUpcommingEventsCommand(message, bot,db);
     });
