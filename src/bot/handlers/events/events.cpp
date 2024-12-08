@@ -24,7 +24,7 @@ namespace NeverForgetBot::Events {
             "Время: " + event.time + "\n" +
             "Статус: " + status_str;
 
-        bot.getApi().sendMessage(chat_id, confirmation_message, nullptr, nullptr, "Markdown");
+        bot.getApi().sendMessage(chat_id, confirmation_message, nullptr, nullptr, nullptr, "Markdown");
     }
 
     void send_events(TgBot::Bot &bot, long chat_id, const std::vector<Event> &events) {
@@ -50,12 +50,12 @@ namespace NeverForgetBot::Events {
             }
 
             message +=
-                "**" + event.name + "**\n" +
+                "*" + event.name + "*\n" +
                 "Время: " + event.time + "\n" +
                 "Статус: " + status_str + "\n\n";
         }
 
-        bot.getApi().sendMessage(chat_id, message);
+        bot.getApi().sendMessage(chat_id, message, nullptr, nullptr, nullptr, "Markdown");
     }
 
 } // namespace NeverForgetBot::Events
