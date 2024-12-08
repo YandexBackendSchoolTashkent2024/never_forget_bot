@@ -1,4 +1,5 @@
 #include "command_handlers.hpp"
+#include <string>
 #include <unordered_map>
 
 namespace NeverForgetBot::Commands {
@@ -46,12 +47,12 @@ void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
         // Uzbekistan cities (with time zone information)
         std::vector<TgBot::InlineKeyboardButton::Ptr> uzbekistanRow;
         std::unordered_map<std::string, std::string> UzbTimeZone = {
-            {"Tashkent", "user_timez-Asia/Tashkent"},
-            {"Samarkand", "user_timez-Asia/Samarkand"},
-            {"Bukhara", "user_timez-Asia/Bukhara"}
+            {"Ташкент", "user_timez-Tashkent"},
+            {"Самарканд", "user_timez-Samarkand"},
+            {"Бухара", "user_timez-Bukhara"}
         };
         for (const auto& [city, tz] : UzbTimeZone) {
-            std::string cityWithTz = city + " (" + tz + ")";
+            std::string cityWithTz = city;
             auto button = std::make_shared<TgBot::InlineKeyboardButton>();
             button->text = cityWithTz;
             button->callbackData = tz; // Use time zone offset as callback data
@@ -61,12 +62,12 @@ void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
         // Russia cities (with time zone information)
         std::vector<TgBot::InlineKeyboardButton::Ptr> russiaRow;
         std::unordered_map<std::string, std::string> RusTimeZone = {
-            {"Moscow", "user_timez-Europe/Moscow"},
-            {"St. Petersburg", "user_timez-Europe/Moscow"},
-            {"Novosibirsk", "user_timez-Asia/Novosibirsk"}
+            {"Масква", "user_timez-Moscow"},
+            {"Санкт-Петербург", "user_timez-St_Petersburg"},
+            {"Новосибирск", "user_timez-Novosibirsk"}
         };
         for (const auto& [city, tz] : RusTimeZone) {
-            std::string cityWithTz = city + " (" + tz + ")";
+            std::string cityWithTz = city;
             auto button = std::make_shared<TgBot::InlineKeyboardButton>();
             button->text = cityWithTz;
             button->callbackData = tz; // Use time zone offset as callback data
@@ -80,7 +81,7 @@ void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
         // Send the message with the inline keyboard
         bot.getApi().sendMessage(
             message->chat->id,
-            "Select your time zone or city:",
+            "Выберите город:",
             nullptr,  // LinkPreviewOptions
             nullptr,  // ReplyParameters
             keyboard,  // Include the keyboard here
@@ -89,26 +90,23 @@ void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
 }
 
 void handleTimeZoneSelection(const std::string& timeZone, TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, NeverForgetBot::Database& db) {
-    std::unordered_map<std::string, std::pair<std::string, std::string>> timeZoneInfo = {
-        {"Asia/Tashkent", {"Tashkent", "+5"}},
-        {"Asia/Samarkand", {"Samarkand", "+5"}},
-        {"Asia/Bukhara", {"Bukhara", "+5"}},
-        {"Europe/Moscow", {"Moscow", "+3"}},
-        {"Europe/St_Petersburg", {"St. Petersburg", "+3"}},
-        {"Asia/Novosibirsk", {"Novosibirsk", "+7"}}
+    std::unordered_map<std::string,std::pair<std::string,int>> timeZoneInfo = {
+        {"Tashkent", {"Ташкент",5}},
+        {"Samarkand", {"Самарканд",5}},
+        {"Bukhara", {"Бухара",5}},
+        {"Moscow", {"Масква",3}},
+        {"St_Petersburg", {"Санкт-Петербург",3}},
+        {"Novosibirsk", {"Новосибирск",7}}
     };
 
     if (timeZoneInfo.find(timeZone) != timeZoneInfo.end()) {
         std::string city = timeZoneInfo[timeZone].first;
-        std::string offset = timeZoneInfo[timeZone].second;
-        db.updateUserTimeZone(query->message->chat->id,timeZone);
-
-        std::string response = "You selected " + city + " (Time Zone: " + offset + ").";
+        int offset = timeZoneInfo[timeZone].second;
+        db.updateUserTimeZone(query->message->chat->id,offset);
+        std::string response = "Вы выбрали " + city + " (Таймзона : " + std::to_string(offset) + ").";
         bot.getApi().sendMessage(query->message->chat->id, response);
-
-        
     } else {
-        bot.getApi().sendMessage(query->message->chat->id, "Unknown time zone selected.");
+        bot.getApi().sendMessage(query->message->chat->id, "Неопределенная таймзона");
     }
 }
 
