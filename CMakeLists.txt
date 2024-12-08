@@ -21,6 +21,7 @@ link_directories(/usr/local/lib) # For tgbot-cpp
 add_executable(TelegramBot
     src/main.cpp
     src/db/db.cpp
+    src/db/users.cpp
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
 )
