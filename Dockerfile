@@ -1,5 +1,5 @@
 # Use an official Ubuntu as a parent image
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 # Set environment variables to suppress prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -40,4 +40,4 @@ RUN cmake .
 RUN make
 
 # Set the entrypoint
-CMD ["./TelegramBot"]
+CMD ["./NeverForgetBot"]
