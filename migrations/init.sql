@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS "user" (
     "telegram_id" INTEGER NOT NULL UNIQUE,
     "username" VARCHAR(255) UNIQUE,
     "name" VARCHAR(255),
-    "timezone" VARCHAR(50) NOT NULL DEFAULT 'Asia/Tashkent',  
+    "timezone" INTEGER NOT NULL DEFAULT 5,  
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
