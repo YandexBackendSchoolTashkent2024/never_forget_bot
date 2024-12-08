@@ -1,4 +1,8 @@
 #include "command_handlers.hpp"
+<<<<<<< HEAD
+=======
+#include <string>
+>>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
 #include <unordered_map>
 
 namespace NeverForgetBot::Commands {
@@ -40,6 +44,7 @@ void onStartCommand(TgBot::Message::Ptr message, TgBot::Bot &bot) {
 }
 
 void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
+<<<<<<< HEAD
         // Create an inline keyboard with options for time zones or cities
         TgBot::InlineKeyboardMarkup::Ptr keyboard(new TgBot::InlineKeyboardMarkup);
 
@@ -81,6 +86,44 @@ void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
         bot.getApi().sendMessage(
             message->chat->id,
             "Select your time zone or city:",
+=======
+        TgBot::InlineKeyboardMarkup::Ptr keyboard(new TgBot::InlineKeyboardMarkup);
+
+        std::vector<TgBot::InlineKeyboardButton::Ptr> uzbekistanRow;
+        std::unordered_map<std::string, std::string> UzbTimeZone = {
+            {"Ташкент", "user_timez-Tashkent"},
+            {"Самарканд", "user_timez-Samarkand"},
+            {"Бухара", "user_timez-Bukhara"}
+        };
+        for (const auto& [city, tz] : UzbTimeZone) {
+            std::string cityWithTz = city;
+            auto button = std::make_shared<TgBot::InlineKeyboardButton>();
+            button->text = cityWithTz;
+            button->callbackData = tz;
+            uzbekistanRow.push_back(button);
+        }
+
+        std::vector<TgBot::InlineKeyboardButton::Ptr> russiaRow;
+        std::unordered_map<std::string, std::string> RusTimeZone = {
+            {"Масква", "user_timez-Moscow"},
+            {"Санкт-Петербург", "user_timez-St_Petersburg"},
+            {"Новосибирск", "user_timez-Novosibirsk"}
+        };
+        for (const auto& [city, tz] : RusTimeZone) {
+            std::string cityWithTz = city;
+            auto button = std::make_shared<TgBot::InlineKeyboardButton>();
+            button->text = cityWithTz;
+            button->callbackData = tz;
+            russiaRow.push_back(button);
+        }
+
+        keyboard->inlineKeyboard.push_back(uzbekistanRow);
+        keyboard->inlineKeyboard.push_back(russiaRow);
+
+        bot.getApi().sendMessage(
+            message->chat->id,
+            "Выберите город:",
+>>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
             nullptr,  // LinkPreviewOptions
             nullptr,  // ReplyParameters
             keyboard,  // Include the keyboard here
@@ -89,6 +132,7 @@ void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot& bot) {
 }
 
 void handleTimeZoneSelection(const std::string& timeZone, TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, NeverForgetBot::Database& db) {
+<<<<<<< HEAD
     std::unordered_map<std::string, std::pair<std::string, std::string>> timeZoneInfo = {
         {"Asia/Tashkent", {"Tashkent", "+5"}},
         {"Asia/Samarkand", {"Samarkand", "+5"}},
@@ -96,10 +140,20 @@ void handleTimeZoneSelection(const std::string& timeZone, TgBot::CallbackQuery::
         {"Europe/Moscow", {"Moscow", "+3"}},
         {"Europe/St_Petersburg", {"St. Petersburg", "+3"}},
         {"Asia/Novosibirsk", {"Novosibirsk", "+7"}}
+=======
+    std::unordered_map<std::string,std::pair<std::string,int>> timeZoneInfo = {
+        {"Tashkent", {"Ташкент",5}},
+        {"Samarkand", {"Самарканд",5}},
+        {"Bukhara", {"Бухара",5}},
+        {"Moscow", {"Масква",3}},
+        {"St_Petersburg", {"Санкт-Петербург",3}},
+        {"Novosibirsk", {"Новосибирск",7}}
+>>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
     };
 
     if (timeZoneInfo.find(timeZone) != timeZoneInfo.end()) {
         std::string city = timeZoneInfo[timeZone].first;
+<<<<<<< HEAD
         std::string offset = timeZoneInfo[timeZone].second;
         db.updateUserTimeZone(query->message->chat->id,timeZone);
 
@@ -109,6 +163,14 @@ void handleTimeZoneSelection(const std::string& timeZone, TgBot::CallbackQuery::
         
     } else {
         bot.getApi().sendMessage(query->message->chat->id, "Unknown time zone selected.");
+=======
+        int offset = timeZoneInfo[timeZone].second;
+        db.updateUserTimeZone(query->message->chat->id,offset);
+        std::string response = "Вы выбрали " + city + " (Таймзона : " + std::to_string(offset) + ").";
+        bot.getApi().sendMessage(query->message->chat->id, response);
+    } else {
+        bot.getApi().sendMessage(query->message->chat->id, "Неопределенная таймзона");
+>>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
     }
 }
 
@@ -123,6 +185,9 @@ void onCallbackQuery(TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, NeverForg
     }
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4c06fda42d1d301d7e03f2a25e235fa89d3d2cd7
 } // namespace NeverForgetBot::Commands
 

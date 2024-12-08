@@ -6,6 +6,13 @@
 #include "db/db.hpp"
 #include "bot/utils/utils.hpp"
 #include "bot/handlers/command_handlers.hpp"
+#include "bot/handlers/notifications/notifications.hpp"
+#include "models/event.hpp"
+#include "models/notification.hpp"
+
+
+#include "chrono/periodic_task.hpp"
+
 
 
 #include "chrono/periodic_task.hpp"
@@ -59,6 +66,36 @@ int main() {
 
     bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onHelpCommand(message, bot);
+    });
+    
+    bot.getEvents().onCommand("upcoming_events", [&bot, &db](TgBot::Message::Ptr message) {
+        long telegram_id = message->from->id;
+
+        db.getEventsOrderedByTimeDesc(bot, telegram_id);
+    });
+
+    bot.getEvents().onCommand("notify", [&bot](TgBot::Message::Ptr message) {
+            NeverForgetBot::Notification notification {
+                "notif id",
+                "event id",
+                "notif time",
+                "sent Time",
+                "created at",
+                "updated at"
+            };
+
+            NeverForgetBot::Event event {
+                "event id",
+                "user id",
+                "name",
+                "event time",
+                NeverForgetBot::EventType::ONE_TIME,
+                NeverForgetBot::EventStatus::PENDING,
+                "cretaed",
+                "updated"
+            };
+
+            NeverForgetBot::Notifications::sendNotification(message->chat->id, bot, notification, event);
     });
 
     bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {

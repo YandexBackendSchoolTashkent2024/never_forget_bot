@@ -1,15 +1,19 @@
+#pragma once
+
 #include <string>
 #include <optional>
 
 namespace NeverForgetBot {
 
+using namespace std;
+
 struct User {
-    std::string id;
-    long telegram_id;
-    std::optional<std::string> username;
-    std::optional<std::string> name;
-    std::string created_at;
-    std::string updated_at;
+    string id;
+    long long telegram_id;
+    optional<string> username;
+    string name;
+    string created_at;
+    string updated_at;
 };
 
 }
