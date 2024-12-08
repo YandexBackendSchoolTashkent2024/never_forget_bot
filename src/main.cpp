@@ -53,12 +53,20 @@ int main() {
         NeverForgetBot::Utils::saveUserIfNotExists(message, bot, db);
     });
 
+    bot.getEvents().onCommand("change_tz",[&bot, &db](TgBot::Message::Ptr message){
+        NeverForgetBot::Commands::onChangeTzCommand(message, bot);
+    });
+
     bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onHelpCommand(message, bot);
     });
 
     bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
         bot.getApi().sendMessage(message->chat->id, "Invalid command");
+    });
+
+    bot.getEvents().onCallbackQuery([&bot,&db](TgBot::CallbackQuery::Ptr query) {
+        NeverForgetBot::Commands::onCallbackQuery(query, bot,db);
     });
 
     bot.getEvents().onNonCommandMessage([&bot](TgBot::Message::Ptr message) {
