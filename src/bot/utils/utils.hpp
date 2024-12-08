@@ -7,6 +7,8 @@
 #include <optional>
 
 #include "../../db/db.hpp"
+#include "../../parse_msg/checker.hpp"
+
 
 namespace NeverForgetBot::Utils {
 
@@ -18,4 +20,7 @@ namespace NeverForgetBot::Utils {
 
     void startLongPolling(TgBot::Bot& bot);
 
-}
+    void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker event) ;
+
+
+} // namespace NeverForgetBot::Utils

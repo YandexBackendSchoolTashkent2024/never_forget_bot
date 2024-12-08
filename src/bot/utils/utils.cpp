@@ -66,4 +66,24 @@ std::string getBotDescription() {
         "Начнем! 🎯";
 }
 
-}
+void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker event) {
+    long telegram_id = message->from->id;
+    std::string event_name;
+    std::string event_time;
+    std::string event_type;
+    std::vector<std::string> notifications;
+
+    event_name = event.getNameEvent();
+    event_time = event.getTime();
+    event_type = event.getType();
+    notifications = event.getNotifications();
+    // auto userId = db.insertUser(telegram_id, username, name);
+
+    if (event_name.size()) {
+        bot.getApi().sendMessage(message->chat->id, "Saved event successfully");
+    } else {
+        bot.getApi().sendMessage(message->chat->id, "Failed to save event");
+    }
+};
+
+} // namespace NeverForgetBot::Utils

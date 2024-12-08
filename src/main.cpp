@@ -102,7 +102,7 @@ int main() {
         NeverForgetBot::Commands::onCallbackQuery(query, bot,db);
     });
 
-    bot.getEvents().onNonCommandMessage([&bot](TgBot::Message::Ptr message) {
+    bot.getEvents().onNonCommandMessage([&bot, &db](TgBot::Message::Ptr message) {
         std::string message_text;
         try {
             Checker checker = processMessage(message->text);
@@ -122,6 +122,8 @@ int main() {
             } else {
                 message_text += "Notifications: null\n";
             }
+            NeverForgetBot::Utils::saveEvent(message, bot, db, checker);
+
         } catch (const std::exception& e) {
             message_text = "Error processing your message: " + std::string(e.what());
         }
