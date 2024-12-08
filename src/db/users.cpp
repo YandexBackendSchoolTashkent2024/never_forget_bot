@@ -1,28 +1,6 @@
 #include "db.hpp"
-#include <iostream>
 
-Database::Database(const std::string& connectionStr) {
-    try {
-        conn = new pqxx::connection(connectionStr);
-        if (!conn->is_open()) {
-            std::cerr << "Cannot open database connection\n";
-            delete conn;
-            conn = nullptr;
-        } else {
-            std::cout << "Connected to database successfully\n";
-        }
-    } catch (const std::exception &e){
-        std::cerr << e.what() << std::endl;
-        conn = nullptr;
-    }
-}
-
-Database::~Database() {
-    if (conn && conn->is_open()) {
-        conn->disconnect();
-    }
-    delete conn;
-}
+namespace NeverForgetBot {
 
 std::optional<std::string> Database::insertUser(long telegram_id, const std::optional<std::string>& username, const std::optional<std::string>& name) {
     if (!conn || !conn->is_open()) {
@@ -63,4 +41,6 @@ std::optional<std::string> Database::insertUser(long telegram_id, const std::opt
         std::cerr << "Insert user failed: " << e.what() << std::endl;
         return std::nullopt;
     }
+}
+
 }
