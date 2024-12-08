@@ -1,9 +1,11 @@
-#include <tgbot/tgbot.h>
-#include "db.hpp"
 #include <iostream>
 #include <cstdlib>
-#include <thread>
-#include <chrono>
+
+#include <tgbot/tgbot.h>
+
+#include "db/db.hpp"
+#include "bot/utils/utils.hpp"
+#include "bot/handlers/command_handlers.hpp"
 
 int main() {
     // Load environment variables
@@ -26,64 +28,28 @@ int main() {
                                 " user=" + std::string(dbUser) +
                                 " password=" + std::string(dbPassword);
 
-    // Initialize Database
-    Database db(connectionStr);
+    NeverForgetBot::Database db(connectionStr);
 
-    // Initialize Bot
     TgBot::Bot bot(botToken);
 
     bot.getEvents().onCommand("start", [&bot, &db](TgBot::Message::Ptr message) {
-        long telegram_id = message->from->id;
-        std::optional<std::string> username;
-        std::optional<std::string> name;
-
-        if (!message->from->username.empty()) {
-            username = message->from->username;
-        }
-
-        if (!message->from->firstName.empty() || !message->from->lastName.empty()) {
-            std::string fullName = message->from->firstName;
-            if (!message->from->lastName.empty()) {
-                fullName += " " + message->from->lastName;
-            }
-            name = fullName;
-        }
-
-        auto userId = db.insertUser(telegram_id, username, name);
-
-        if (userId.has_value()) {
-            bot.getApi().sendMessage(message->chat->id, "Your ID has been saved: " + userId.value());
-        } else {
-            bot.getApi().sendMessage(message->chat->id, "Failed to save your ID.");
-        }
-
-        // Here you can store the user's chat ID if you want to send periodic messages to this user.
-        // For example, you might store it in a global variable or database.
+        NeverForgetBot::Commands::onStartCommand(message, bot);
+        NeverForgetBot::Utils::saveUserIfNotExists(message, bot, db);
     });
 
-    // Launch a background thread that sends "hello world" every minute
-    // Replace SOME_CHAT_ID with a valid chat ID where your bot can send messages
-    // const int64_t SOME_CHAT_ID = 266798451; // Replace with the actual chat ID
-    // std::thread([&bot, SOME_CHAT_ID]() {
-    //     while (true) {
-    //         std::this_thread::sleep_for(std::chrono::minutes(1));
-    //         try {
-    //             bot.getApi().sendMessage(SOME_CHAT_ID, "Hello world");
-    //         } catch (const std::exception &e) {
-    //             std::cerr << "Error sending message: " << e.what() << std::endl;
-    //         }
-    //     }
-    // }).detach();
+    bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
+        NeverForgetBot::Commands::onHelpCommand(message, bot);
+    });
 
-    try {
-        std::cout << "Bot username: " << bot.getApi().getMe()->username.c_str() << std::endl;
-        TgBot::TgLongPoll longPoll(bot);
-        while (true) {
-            longPoll.start();
-        }
-    } catch (TgBot::TgException& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-    }
+    bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
+        bot.getApi().sendMessage(message->chat->id, "Invalid command");
+    });
+
+    bot.getEvents().onNonCommandMessage([&bot](TgBot::Message::Ptr message) {
+        bot.getApi().sendMessage(message->chat->id, "You typed: " + message->text);
+    });
+
+    NeverForgetBot::Utils::startLongPolling(bot);
 
     return 0;
 }

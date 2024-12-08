@@ -4,14 +4,7 @@
 #include <string>
 #include <optional>
 
-struct User {
-    std::string id;
-    long telegram_id;
-    std::optional<std::string> username;
-    std::optional<std::string> name;
-    std::string created_at;
-    std::string updated_at;
-};
+namespace NeverForgetBot {
 
 class Database {
 public:
@@ -24,3 +17,5 @@ public:
 private:
     pqxx::connection* conn;
 };
+
+}

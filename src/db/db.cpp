@@ -1,6 +1,8 @@
 #include "db.hpp"
 #include <iostream>
 
+namespace NeverForgetBot {
+
 Database::Database(const std::string& connectionStr) {
     try {
         conn = new pqxx::connection(connectionStr);
@@ -63,4 +65,6 @@ std::optional<std::string> Database::insertUser(long telegram_id, const std::opt
         std::cerr << "Insert user failed: " << e.what() << std::endl;
         return std::nullopt;
     }
+}
+
 }
