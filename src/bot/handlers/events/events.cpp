@@ -19,12 +19,12 @@ namespace NeverForgetBot::Events {
         }
 
         std::string confirmation_message =
-            "Событие создано успешно:\n\n**" +
-            event.name + "**\n" +
+            "Событие создано успешно:\n\n*" +
+            event.name + "*\n" +
             "Время: " + event.time + "\n" +
             "Статус: " + status_str;
 
-        bot.getApi().sendMessage(chat_id, confirmation_message);
+        bot.getApi().sendMessage(chat_id, confirmation_message, nullptr, nullptr, "Markdown");
     }
 
     void send_events(TgBot::Bot &bot, long chat_id, const std::vector<Event> &events) {
