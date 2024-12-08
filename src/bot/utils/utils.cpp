@@ -2,7 +2,7 @@
 
 namespace NeverForgetBot::Utils {
 
-void saveUserIfNotExists(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database db) {
+void saveUserIfNotExists(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db) {
     long telegram_id = message->from->id;
     std::optional<std::string> username;
     std::optional<std::string> name;
