@@ -22,6 +22,7 @@ add_executable(TelegramBot
     src/main.cpp
     src/db/db.cpp
     src/db/users.cpp
+    src/db/event.cpp
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
 )

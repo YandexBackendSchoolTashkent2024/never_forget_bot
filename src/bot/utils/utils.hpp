@@ -14,8 +14,8 @@ namespace NeverForgetBot::Utils {
 
     std::string getBotDescription();
 
-    void saveUserIfNotExists(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database db);
+    void saveUserIfNotExists(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db);
 
     void startLongPolling(TgBot::Bot& bot);
 
-} // namespace NeverForgetBot::Utils
+}

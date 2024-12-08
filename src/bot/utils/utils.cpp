@@ -2,7 +2,7 @@
 
 namespace NeverForgetBot::Utils {
 
-void saveUserIfNotExists(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database db) {
+void saveUserIfNotExists(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db) {
     long telegram_id = message->from->id;
     std::optional<std::string> username;
     std::optional<std::string> name;
@@ -19,13 +19,7 @@ void saveUserIfNotExists(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForg
         name = fullName;
     }
 
-    auto userId = db.insertUser(telegram_id, username, name);
-
-    if (userId.has_value()) {
-        bot.getApi().sendMessage(message->chat->id, "Your ID has been saved: " + userId.value());
-    } else {
-        bot.getApi().sendMessage(message->chat->id, "Failed to save your ID.");
-    }
+    db.insertUser(telegram_id, username, name);
 };
 
 void startLongPolling(TgBot::Bot& bot) {
@@ -71,4 +65,4 @@ std::string getBotDescription() {
         "Начнем! 🎯";
 }
 
-} // namespace NeverForgetBot::Utils
+}

@@ -40,6 +40,29 @@ int main() {
     bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onHelpCommand(message, bot);
     });
+    
+    bot.getEvents().onCommand("upcoming_events", [&bot, &db](TgBot::Message::Ptr message) {
+        long telegram_id = message->from->id;
+
+        std::vector<NeverForgetBot::Event> events = db.getEventsOrderedByTimeDesc(telegram_id);
+
+        if (events.empty()) {
+            bot.getApi().sendMessage(message->chat->id, "No events found.");
+            return;
+        }
+
+        std::string response = "Your Events:\n\n";
+        for (const auto& event : events) {
+            response += "ID: " + event.id + "\n";
+            response += "Name: " + event.name + "\n";
+            response += "Time: " + event.time + "\n";
+            response += "Status: " + event.status + "\n";
+            response += "Created At: " + event.createdAt + "\n";
+            response += "Updated At: " + event.updatedAt + "\n\n";
+        }
+
+        bot.getApi().sendMessage(message->chat->id, response);
+    });
 
     bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
         bot.getApi().sendMessage(message->chat->id, "Invalid command");
