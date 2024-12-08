@@ -28,20 +28,36 @@ namespace chrono_task {
             // Send notification logic here, for example using `bot.sendMessage`
             // Example:
             // bot.getApi().sendMessage(telegram_id, "Reminder: " + event_name);
-            
             try {
-                // Assuming that bot.getApi().sendMessage is a synchronous call, which is true for many Telegram bots
-                bot.getApi().sendMessage(telegram_id, "Reminder: " + event_name + " scheduled at " + event_time);
-                
-                // Step 3: After successfully sending, update the sent_time in the database
-                if (db.updateSentTimeForNotification(notification_id)) {
-                    std::cout << "Successfully sent and updated sent_time for notification: " << notification_id << std::endl;
-                } else {
-                    std::cerr << "Failed to update sent_time for notification: " << notification_id << std::endl;
-                }
-            } catch (const std::exception& e) {
-                std::cerr << "Error sending notification to user " << telegram_id << ": " << e.what() << std::endl;
-            }
+    // Create the formatted message
+    std::string formattedMessage = std::string("🔔 *Reminder Alert!* 🔔\n\n") + 
+                                   "*Event:* " + event_name + "\n" + 
+                                   "*Scheduled At:* " + event_time + "\n\n" +
+                                   "Stay tuned and be ready for the event! 😊\n\n" +
+                                   "This is your friendly reminder from your bot. 💬";
+
+    // Send the message
+    auto sentMessage = bot.getApi().sendMessage(telegram_id, formattedMessage);
+bool sentSuccessfully = (sentMessage != nullptr);
+
+    if (sentSuccessfully) {
+        std::cout << "✅ Successfully sent reminder to user " << telegram_id << std::endl;
+        
+        // Step 3: After successfully sending, update the sent_time in the database
+        if (db.updateSentTimeForNotification(notification_id)) {
+            std::cout << "✅ Successfully updated sent_time for notification: " << notification_id << std::endl;
+        } else {
+            std::cerr << "❌ Failed to update sent_time for notification: " << notification_id << std::endl;
+        }
+    } else {
+        std::cerr << "❌ Failed to send reminder to user " << telegram_id << std::endl;
+    }
+
+} catch (const std::exception& e) {
+    std::cerr << "⚠️ Error sending notification to user " << telegram_id << ": " << e.what() << std::endl;
+}
+
+
         }
 
         // Wait for the next interval (1 minute)
