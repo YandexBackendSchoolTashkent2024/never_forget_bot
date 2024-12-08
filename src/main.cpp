@@ -9,6 +9,7 @@
 #include "bot/handlers/command_handlers.hpp"
 #include "bot/utils/utils.hpp"
 #include "event-creator/event-creator.hpp"
+#include <userver/testsuite/testsuite_support.hpp>
 
 int main(int argc, char* argv[]) {
   std::string db_name(getenv("POSTGRES_DB"));
@@ -17,6 +18,7 @@ int main(int argc, char* argv[]) {
   printf("Postgres DB: %s\n", db_name.c_str());
 
   auto component_list = userver::components::MinimalServerComponentList()
+  .Append<userver::components::TestsuiteSupport>()
                   .Append<userver::components::Postgres>(db_name)
                   .Append<userver::components::HttpClient>();
 

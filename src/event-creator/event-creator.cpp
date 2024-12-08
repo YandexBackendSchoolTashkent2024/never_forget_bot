@@ -9,13 +9,13 @@
 
 namespace never_forget_bot {
 
-class EventCreator final : public userver::components::LoggableComponentBase {
+class EventCreator final : public userver::components::ComponentBase {
  public:
   static constexpr std::string_view kName = "event-creator";
 
   EventCreator(const userver::components::ComponentConfig& config,
                const userver::components::ComponentContext& context)
-      : userver::components::LoggableComponentBase(config, context),
+      : userver::components::ComponentBase(config, context),
         ai_(context.FindComponent<AI>("ai-component")),
         pg_cluster_(context.FindComponent<userver::components::Postgres>("never_forget_bot_db-1").GetCluster()) {
     LOG_INFO() << "EventCreator initialized";

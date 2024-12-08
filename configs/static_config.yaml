@@ -30,7 +30,6 @@ components_manager:
         POSTGRES_DEFAULT_COMMAND_CONTROL:
           network_timeout_ms: 750
           statement_timeout_ms: 500
-
     http-client:
       load-enabled: $is-testing
       fs-task-processor: fs-task-processor
