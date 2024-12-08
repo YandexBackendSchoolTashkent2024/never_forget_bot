@@ -7,6 +7,11 @@
 #include "bot/utils/utils.hpp"
 #include "bot/handlers/command_handlers.hpp"
 
+
+#include "chrono/periodic_task.hpp"
+
+
+
 int main() {
     // Load environment variables
     const char* botToken = std::getenv("TOKEN");
@@ -29,8 +34,13 @@ int main() {
                                 " password=" + std::string(dbPassword);
 
     NeverForgetBot::Database db(connectionStr);
-
+    
     TgBot::Bot bot(botToken);
+
+
+    // here crono job starting 
+    chrono_task::start_periodic_task(db, bot);
+    //
 
     bot.getEvents().onCommand("start", [&bot, &db](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onStartCommand(message, bot);
@@ -50,6 +60,8 @@ int main() {
     });
 
     NeverForgetBot::Utils::startLongPolling(bot);
+    // here crono job ending
 
+    chrono_task::stop_periodic_task();
     return 0;
 }

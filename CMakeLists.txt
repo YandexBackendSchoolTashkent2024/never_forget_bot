@@ -24,6 +24,8 @@ add_executable(TelegramBot
     src/db/users.cpp
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
+    src/chrono/periodic_task.cpp
+    
 )
 
 target_link_libraries(TelegramBot
