@@ -98,25 +98,34 @@ std::string formatTimeWithTimezone(long telegram_id, const std::string& time, Ne
     }
 }
 
-void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker event) {
+void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker &event) {
     long telegram_id = message->from->id;
     std::string event_name = event.getNameEvent();
     std::string event_time = event.getTime();
     std::string event_type;
     vector<std::string> notifications = event.getNotifications();
+    std::string notification_time;
+    auto user_id = db.getUserIdByTelegramId(telegram_id);
+    int user_tz = db.getUserTimeZone(telegram_id);
+    event_time = adjustEventTime(event_time, user_tz);
+    if (!notifications.empty()){
+        notification_time = notifications[0];
+        notification_time = adjustEventTime(notification_time, user_tz);
+    }
+    else {
+        notification_time = event_time;
+    }
     
-    std::string notification_time = notifications[0];
     try {
         event_type = event.getType() == Checker::EventType::WHILE_NOT_DONE ? "WHILE_NOT_DONE" : "ONE_TIME";
     } catch (const std::invalid_argument &e) {
         event_type = "ONE_TIME";
     }
 
-    auto user_id = db.getUserIdByTelegramId(telegram_id);
-    int user_tz = db.getUserTimeZone(telegram_id);
+    
 
-    event_time = adjustEventTime(event_time, user_tz);
-    notification_time = adjustEventTime(notification_time, user_tz);
+    
+
     std::cout<<"Event time: "<<event_time<<"\nNotification time: "<<notification_time<<endl;
     if (user_id.has_value()) {
         auto event_id = db.insertEvent(user_id, event_name, event_time, event_type);
