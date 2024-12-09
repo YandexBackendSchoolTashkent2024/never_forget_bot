@@ -44,7 +44,7 @@ void startLongPolling(TgBot::Bot& bot) {
 std::vector<TgBot::BotCommand::Ptr> getBotCommands() {
     std::unordered_map<std::string, std::string> mp = {
         { "/upcoming_events", "получить список предстоящих событий" },
-        { "/settings", "отобразить меню настроек" },
+        // { "/settings", "отобразить меню настроек" },
         { "/help", "инструкция по использованию бота" },
         { "/start", "запуск бота" }
     };
@@ -64,6 +64,39 @@ std::string getBotDescription() {
     return "Добро пожаловать в Never Forget Bot!\n\n"
         "Создавайте напоминания и получайте своевременные уведомления без лишней траты времени.\n\n"
         "Начнем! 🎯";
+}
+
+std::string formatTimeWithTimezone(long telegram_id, const std::string& time, NeverForgetBot::Database& db) {
+    try {
+        int timezone = db.getUserTimeZone(telegram_id);
+
+        std::string timestamp = time.substr(0, 19);
+
+        std::tm timeStruct = {};
+        std::istringstream ss(timestamp);
+        ss >> std::get_time(&timeStruct, "%Y-%m-%d %H:%M:%S");
+        if (ss.fail()) {
+            throw std::runtime_error("Failed to parse timestamp");
+        }
+
+        time_t timeEpoch = std::mktime(&timeStruct);
+        if (timeEpoch == -1) {
+            throw std::runtime_error("Failed to convert to time_t");
+        }
+        timeEpoch += timezone * 3600;
+
+        std::tm* updatedTimeStruct = std::gmtime(&timeEpoch);
+        if (!updatedTimeStruct) {
+            throw std::runtime_error("Failed to convert back to tm struct");
+        }
+
+        std::ostringstream output;
+        output << std::put_time(updatedTimeStruct, "%Y-%m-%d %H:%M:%S");
+        return output.str();
+    } catch (const std::exception& e) {
+        std::cerr << "Error formatting time: " << e.what() << std::endl;
+        return "Invalid time";
+    }
 }
 
 }

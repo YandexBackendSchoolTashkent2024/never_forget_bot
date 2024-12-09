@@ -18,4 +18,6 @@ namespace NeverForgetBot::Utils {
 
     void startLongPolling(TgBot::Bot& bot);
 
+    std::string formatTimeWithTimezone(long telegram_id, const std::string& time, NeverForgetBot::Database& db);
+
 }
