@@ -31,7 +31,7 @@ add_executable(NeverForgetBot
     src/bot/commands/start.cpp
     src/bot/commands/help.cpp
     src/bot/commands/change_tz.cpp
-    src/bot/commands/upcomming-events.cpp
+    src/bot/commands/upcoming-events.cpp
     src/bot/handlers/callback/callback.cpp
     src/bot/handlers/callback/time-zone.cpp
     src/bot/handlers/callback/delay-notification.cpp

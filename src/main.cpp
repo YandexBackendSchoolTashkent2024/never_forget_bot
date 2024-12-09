@@ -51,7 +51,7 @@ int main() {
     });
 
     bot.getEvents().onCommand("upcoming_events", [&bot, &db](TgBot::Message::Ptr message) {
-        NeverForgetBot::Commands::onUpcommingEventsCommand(message, bot,db);
+        NeverForgetBot::Commands::onUpcomingEventsCommand(message, bot,db);
     });
 
     bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
