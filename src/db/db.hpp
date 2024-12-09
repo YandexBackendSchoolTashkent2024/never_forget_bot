@@ -5,10 +5,10 @@
 #include <iostream>
 #include <string>
 #include <optional>
+#include <type_traits>
+#include <exception>
 
 #include "../models/event.hpp"
-#include <tgbot/Bot.h>
-#include <type_traits>
 #include "../models/notification.hpp"
 
 namespace NeverForgetBot {
@@ -16,7 +16,9 @@ namespace NeverForgetBot {
 class Database {
 public:
     Database(const std::string& connectionStr);
+
     ~Database();
+
     std::vector<std::tuple<std::string, std::string, std::string, std::string>> fetchPendingNotifications();
 
     void updateSentTimeForNotification(const std::string& notification_id);
