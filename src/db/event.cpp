@@ -81,6 +81,7 @@ namespace NeverForgetBot {
             if (user_result.empty()) {
                 std::cerr << "No user found with telegram_id: " << telegram_id << std::endl;
                 txn.commit();
+                throw std::runtime_error("No user");
             }
 
             std::string user_id = user_result[0]["id"].as<std::string>();
