@@ -8,9 +8,7 @@ void onDelayNotificationSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
         int colon_idx = data.find(":");
 
         std::string interval = data.substr(6, colon_idx - 6);
-        std::cout << interval;
         std::string notification_id = data.substr(colon_idx + 1);
-        std::cout << notification_id;
 
         Notification notification = db.delayNotification(notification_id, interval);
 
