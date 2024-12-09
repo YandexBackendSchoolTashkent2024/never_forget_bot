@@ -1,5 +1,4 @@
 #include "events.hpp"
-#include <tgbot/Bot.h>
 
 namespace NeverForgetBot::Events {
 
@@ -27,7 +26,7 @@ namespace NeverForgetBot::Events {
         bot.getApi().sendMessage(chat_id, confirmation_message, nullptr, nullptr, nullptr, "Markdown");
     }
 
-    void send_events(TgBot::Bot &bot, long chat_id, const std::vector<Event> &events) {
+    void send_events(TgBot::Bot &bot, long chat_id, const std::vector<Event> &events, Database &db) {
         if (events.empty()) {
             bot.getApi().sendMessage(chat_id, "Нет предстоящих событий. Самое время создать новое 🙂.");
             return;
@@ -51,7 +50,7 @@ namespace NeverForgetBot::Events {
 
             message +=
                 "*" + event.name + "*\n" +
-                "Время: " + event.time + "\n" +
+                "Время: " + Utils::formatTimeWithTimezone(chat_id, event.time, db).value_or(event.time) + "\n" +
                 "Статус: " + status_str + "\n\n";
         }
 

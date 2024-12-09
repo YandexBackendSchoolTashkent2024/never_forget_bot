@@ -14,10 +14,11 @@ void onDelayNotificationSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
 
         bot.getApi().deleteMessage(query->message->chat->id, query->message->messageId);
 
-        std::string message = "Уведомление успешно отложено на " +
-            interval.substr(0, interval.length() - 3) + " минут. Напомним " +
-            notification.time;
-        bot.getApi().sendMessage(query->message->chat->id, message);
+        std::string message = "Уведомление успешно отложено на *" +
+        interval.substr(0, interval.length() - 3) + "* минут. Напомним *" +
+        Utils::formatTimeWithTimezone(query->message->chat->id, notification.time, db).value_or(notification.time) + "*";
+
+        bot.getApi().sendMessage(query->message->chat->id, message, nullptr, nullptr, nullptr, "Markdown");
     } catch (std::exception &e) {
         std::cerr << "Notification delay failed: " << e.what() << '\n';
     }

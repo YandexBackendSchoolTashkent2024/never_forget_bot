@@ -2,6 +2,7 @@
 
 #include "../../db/db.hpp"
 #include "./messages/messages.hpp"
+#include "../handlers/events/events.hpp"
 
 namespace NeverForgetBot::Commands {
 

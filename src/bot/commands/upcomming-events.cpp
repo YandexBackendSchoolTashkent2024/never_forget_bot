@@ -6,6 +6,6 @@ namespace NeverForgetBot::Commands {
 
         std::vector<Event> uppcommingEvents = db.getEventsOrderedByTimeDesc(telegram_id);
 
-        Events::send_events(bot, telegram_id, uppcommingEvents);
+        Events::send_events(bot, telegram_id, uppcommingEvents, db);
     }
 }
