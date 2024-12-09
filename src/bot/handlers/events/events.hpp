@@ -1,5 +1,4 @@
 #include <tgbot/tgbot.h>
-
 #include "../../../models/event.hpp"
 
 namespace NeverForgetBot::Events {
