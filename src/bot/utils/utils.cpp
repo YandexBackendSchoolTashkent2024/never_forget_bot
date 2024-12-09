@@ -44,7 +44,6 @@ void startLongPolling(TgBot::Bot& bot) {
 std::vector<TgBot::BotCommand::Ptr> getBotCommands() {
     std::unordered_map<std::string, std::string> mp = {
         { "/upcoming_events", "получить список предстоящих событий" },
-        // { "/settings", "отобразить меню настроек" },
         { "/help", "инструкция по использованию бота" },
         { "/start", "запуск бота" }
     };
