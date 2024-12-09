@@ -12,7 +12,6 @@
 #include "../models/user.hpp"
 #include "../models/notification.hpp"
 #include "../bot/handlers/events/events.hpp"
-#include "../bot/handlers/notifications/notifications.hpp"
 
 namespace NeverForgetBot {
 

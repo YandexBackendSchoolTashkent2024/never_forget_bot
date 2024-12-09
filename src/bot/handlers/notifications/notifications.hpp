@@ -1,10 +1,9 @@
 #pragma once
 
 #include <tgbot/tgbot.h>
+#include "../../../db/db.hpp"
+#include "../../utils/utils.hpp"
 
-namespace NeverForgetBot {
-    class Database;
-}
 
 namespace NeverForgetBot::Notifications {
 

@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "../db/db.hpp"
+#include "../bot/handlers/notifications/notifications.hpp"
 
 
 namespace chrono_task {

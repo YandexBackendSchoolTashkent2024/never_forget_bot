@@ -38,8 +38,8 @@ void sendNotification(
     std::string message =
         "🔔 Напоминание! 🔔\n\n"
         "📢 Событие: *" + event_name +
-        "*\n📅 Время события: *" + event_time +
-        "*\n📨 Отправлено: *" + notification_time +
+        "*\n📅 Время события: *" + Utils::formatTimeWithTimezone(chatId, event_time, db).value_or(event_time) +
+        "*\n📨 Отправлено: *" + Utils::formatTimeWithTimezone(chatId, notification_time, db).value_or(notification_time) +
         "*\n\n🫡 Ваш дружелюбный бот всегда на страже ваших дел";
 
     auto keyboard = createNotificationKeyboard(notification_id);
