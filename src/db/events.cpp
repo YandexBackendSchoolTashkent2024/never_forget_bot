@@ -24,7 +24,7 @@ std::optional<std::string> Database::insertEvent(const std::optional<std::string
                     + txn.quote(event_name) + ", "
                     + txn.quote(event_time) + ", "
                     + txn.quote(event_type) + ", "
-                    + "'NOT_COMPLETED'" + ") RETURNING id;";
+                    + "'PENDING'" + ") RETURNING id;";
 
 
         pqxx::result r = txn.exec(query);

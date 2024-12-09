@@ -26,20 +26,25 @@ void saveUserIfNotExists(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForg
 void startLongPolling(TgBot::Bot& bot) {
     try {
         printf("Bot username: %s\n", bot.getApi().getMe()->username.c_str());
-        bot.getApi().deleteWebhook();
-        bot.getApi().setMyCommands(getBotCommands());
-        bot.getApi().setMyDescription(getBotDescription());
-        bot.getApi().setMyShortDescription("An awesome bot to make you forget about forgetting");
-
+        try {
+            bot.getApi().deleteWebhook();
+            bot.getApi().setMyCommands(getBotCommands());
+            bot.getApi().setMyDescription(getBotDescription());
+            bot.getApi().setMyShortDescription("An awesome bot to make you forget about forgetting");
+        } catch (std::exception& e) {
+            printf("error: %s\n", e.what());
+        }
         TgBot::TgLongPoll longPoll(bot);
+        std::cerr << "Starting long poll" << std::endl;
         while (true) {
-            printf("Long poll started\n");
+            printf("Long poll continue\n");
             longPoll.start();
         }
     } catch (std::exception& e) {
         printf("error: %s\n", e.what());
     }
 }
+
 
 std::vector<TgBot::BotCommand::Ptr> getBotCommands() {
     std::unordered_map<std::string, std::string> mp = {
