@@ -36,22 +36,9 @@ namespace NeverForgetBot::Events {
         for (const auto& event : events) {
             std::string status_str;
 
-            switch (event.status) {
-                case EventStatus::PENDING:
-                    status_str = "в процессе исполнения";
-                    break;
-                case EventStatus::COMPLETED:
-                    status_str = "завершено";
-                    break;
-                case EventStatus::NOT_COMPLETED:
-                    status_str = "не завершено";
-                    break;
-            }
-
             message +=
                 "*" + event.name + "*\n" +
                 "Время: " + Utils::formatTimeWithTimezone(chat_id, event.time, db).value_or(event.time) + "\n" +
-                "Статус: " + status_str + "\n\n";
         }
 
         bot.getApi().sendMessage(chat_id, message, nullptr, nullptr, nullptr, "Markdown");
