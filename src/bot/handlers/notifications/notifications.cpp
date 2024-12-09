@@ -28,11 +28,20 @@ TgBot::InlineKeyboardMarkup::Ptr createNotificationKeyboard(const std::string& n
     return keyboard;
 }
 
-void sendNotification(long chatId, TgBot::Bot &bot, const std::string &notification_id, const std::string &notification_time, const std::string &event_name, const std::string &event_time) {
+void sendNotification(
+    long chatId,
+    TgBot::Bot &bot,
+    std::string &notification_id,
+    std::string &notification_time,
+    std::string &event_name,
+    std::string &event_time
+) {
     std::string message =
-        "Уведомление для события:\n\n" + event_name +
-        "Время события: " + event_time + "\n" +
-        "Отправлено: " + notification_time + "\n";
+        "🔔 Напоминание! 🔔\n\n"
+        "📢 Событие: *" + event_name +
+        "*\n📅 Время события: *" + event_time +
+        "*\n📨 Отправлено: *" + notification_time +
+        "*\n🫡 Ваш дружелюбный бот всегда на страже ваших дел";
 
     auto keyboard = createNotificationKeyboard(notification_id);
 
