@@ -1,6 +1,6 @@
 #include "db.hpp"
-#include <iostream>
 #include "../bot/handlers/events/events.hpp"
+#include <strstream>
 
 namespace NeverForgetBot {
 

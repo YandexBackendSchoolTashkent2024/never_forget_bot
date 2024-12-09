@@ -11,19 +11,19 @@ TgBot::InlineKeyboardMarkup::Ptr createNotificationKeyboard(const std::string& n
     keyboard->inlineKeyboard.push_back({
         TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Сделано", "", "status_complete:" + notification_id}),
         TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Не сделано", "", "status_incomplete:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Удалить", "", "stats_delete:" + notification_id})
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Удалить", "", "status_delete:" + notification_id})
     });
 
     keyboard->inlineKeyboard.push_back({
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+15", "", "delay_15:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+30 mins", "", "delay_30:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+1 hour", "", "delay_60:" + notification_id})
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+15 минут", "", "delay_15min:" + notification_id}),
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+30 минут", "", "delay_30min:" + notification_id}),
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+1 час", "", "delay_60min:" + notification_id})
     });
 
     keyboard->inlineKeyboard.push_back({
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+3 часа", "", "delay_180:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+6 часов", "", "delay_360:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+12 часов", "", "delay_720:" + notification_id})
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+3 часа", "", "delay_180min:" + notification_id}),
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+6 часов", "", "delay_360min:" + notification_id}),
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"+12 часов", "", "delay_720min:" + notification_id})
     });
 
     return keyboard;
