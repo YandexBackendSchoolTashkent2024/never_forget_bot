@@ -32,7 +32,8 @@ void sendNotification(
     const std::string &notification_id,
     const std::string &notification_time,
     const std::string &event_name,
-    const std::string &event_time
+    const std::string &event_time,
+    Database &db
 ) {
     std::string message =
         "🔔 Напоминание! 🔔\n\n"

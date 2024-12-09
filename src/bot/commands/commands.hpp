@@ -1,8 +1,7 @@
 #pragma once
+
 #include "../../db/db.hpp"
 #include "./messages/messages.hpp"
-#include "../handlers/events/events.hpp"
-#include <tgbot/tgbot.h>
 
 namespace NeverForgetBot::Commands {
 

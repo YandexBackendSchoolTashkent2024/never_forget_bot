@@ -1,10 +1,4 @@
 #include "periodic_task.hpp"
-#include <iostream>
-#include <string>
-#include <thread>
-#include <chrono>
-#include "../db/db.hpp"
-
 
 namespace chrono_task {
 
@@ -12,7 +6,7 @@ std::atomic<bool> keep_running(true);
 
 void periodic_task(NeverForgetBot::Database& db, TgBot::Bot& bot) {
     while (keep_running) {
-        std::cout << "Background task executed at: " << now << " (Unix timestamp)" << std::endl;
+        std::cout << "Background task executed at: " << std::time(nullptr) << " (Unix timestamp)" << std::endl;
 
         auto notifications = db.fetchPendingNotifications();
 
@@ -32,7 +26,8 @@ void periodic_task(NeverForgetBot::Database& db, TgBot::Bot& bot) {
                     notification_id,
                     notification_time,
                     event_name,
-                    event_time
+                    event_time,
+                    db
                 );
 
                 try {
