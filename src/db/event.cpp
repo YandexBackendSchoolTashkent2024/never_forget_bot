@@ -48,7 +48,6 @@ namespace NeverForgetBot {
     void Database::updateSentTimeForNotification(const std::string& notification_id) {
         if (!conn || !conn->is_open()) {
             std::cerr << "Database connection is not open\n";
-            //todo error
         }
 
         try {
@@ -63,7 +62,6 @@ namespace NeverForgetBot {
             std::cout << "Notification with ID " << notification_id << " updated with sent time.\n";
         } catch (const std::exception &e) {
             std::cerr << "Update sent time failed: " << e.what() << std::endl;
-            //todo error
         }
     }
 

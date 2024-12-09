@@ -47,7 +47,6 @@ std::optional<std::string> Database::insertUser(long telegram_id, const std::opt
 void Database::updateUserTimeZone(long telegram_id, const int& tzoffset) {
     if (!conn || !conn->is_open()) {
         std::cerr << "Database connection is not open\n";
-        //todo error
     }
 
     try {
@@ -60,7 +59,6 @@ void Database::updateUserTimeZone(long telegram_id, const int& tzoffset) {
         txn.commit();
     } catch (const std::exception &e) {
         std::cerr << "Update timezone failed: " << e.what() << std::endl;
-     //todo error
     }
 }
 
