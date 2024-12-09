@@ -22,11 +22,15 @@ std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
 
         std::string user_id = user_result[0]["id"].as<std::string>();
 
-        std::string events_query = "SELECT id, user_id, name, time, status, created_at, updated_at "
-                                "FROM \"event\" "
-                                "WHERE user_id = " + txn.quote(user_id) + " "
-                                "ORDER BY time DESC;";
-        pqxx::result r = txn.exec(events_query);
+        conn->prepare("get_upcoming_events",
+            "SELECT id, user_id, name, time, status, created_at, updated_at "
+            "FROM event "
+            "WHERE user_id = $1 "
+            "AND status = 'PENDING' "
+            "ORDER BY time DESC"
+        );
+        pqxx::result r = txn.exec_prepared("get_upcoming_events", user_id);
+
         txn.commit();
 
         for (const auto& row : r) {
