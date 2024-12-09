@@ -3,6 +3,7 @@
 #include <pqxx/pqxx>
 #include <tgbot/tgbot.h>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <optional>
 #include <type_traits>
