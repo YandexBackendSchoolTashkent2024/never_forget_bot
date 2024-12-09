@@ -27,6 +27,8 @@ add_executable(NeverForgetBot
     src/db/db.cpp
     src/db/users.cpp
     src/db/event.cpp
+    src/db/events.cpp
+
     src/bot/commands/start.cpp
     src/bot/commands/help.cpp
     src/bot/commands/change_tz.cpp
