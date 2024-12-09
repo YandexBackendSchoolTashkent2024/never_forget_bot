@@ -8,5 +8,6 @@ namespace NeverForgetBot::CallbackHandlers {
 
     void onTimeZoneSelection(const std::string& timeZone, TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, Database& db);
 
+    void onUpcommingEventSelection(const std::string& queryData, TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, Database& db);
 }
 

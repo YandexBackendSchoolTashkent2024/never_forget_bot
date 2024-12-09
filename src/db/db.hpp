@@ -27,6 +27,8 @@ public:
     std::vector<Event> getEventsOrderedByTimeDesc(long telegram_id);
   
     std::optional<std::string> deleteEvent(long telegram_id, const std::optional<std::string>& username, const std::optional<std::string>& name);
+
+    void updateEventStatus(const std::string event_id,const std::string status);
 private:
     pqxx::connection* conn;
 };

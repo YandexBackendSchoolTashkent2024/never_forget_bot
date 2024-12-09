@@ -6,8 +6,11 @@ namespace NeverForgetBot::CallbackHandlers {
         std::string callbackData = query->data;
 
         if (callbackData.find("user_timez-") == 0) {
-            std::string timeZone = callbackData.substr(11);
-            onTimeZoneSelection(timeZone, query, bot, db);
+            std::string queryData = callbackData.substr(11);
+            onTimeZoneSelection(queryData, query, bot, db);
+        }else if(callbackData.find("upcomming-event-") == 0){
+            std::string queryData = callbackData.substr(16);
+            onUpcommingEventSelection(queryData, query, bot,db);
         } else {
             bot.getApi().sendMessage(query->message->chat->id, "Unknown selection.");
         }

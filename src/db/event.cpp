@@ -88,9 +88,11 @@ namespace NeverForgetBot {
             std::string user_id = user_result[0]["id"].as<std::string>();
 
             std::string events_query = "SELECT id, user_id, name, time, status, created_at, updated_at "
-                                    "FROM \"event\" "
-                                    "WHERE user_id = " + txn.quote(user_id) + " "
-                                    "ORDER BY time DESC;";
+                           "FROM \"event\" "
+                           "WHERE user_id = " + txn.quote(user_id) + " "
+                           "AND status NOT IN ('DELETED', 'COMPLETED') "
+                           "ORDER BY time DESC;";
+
             pqxx::result r = txn.exec(events_query);
             txn.commit();
 
@@ -115,4 +117,31 @@ namespace NeverForgetBot {
         return events;
     }
 
+    void Database::updateEventStatus(const std::string event_id, const std::string status) {
+        if (!conn || !conn->is_open()) {
+            std::cerr << "Database connection is not open\n";
+            return;
+        }
+
+        try {
+            pqxx::work txn(*conn);
+            
+            std::string update_query = "UPDATE \"event\" "
+                                    "SET status = " + txn.quote(status) + ", updated_at = NOW() "
+                                    "WHERE id = " + txn.quote(event_id) + " "
+                                    "RETURNING id;";
+
+            pqxx::result r = txn.exec(update_query);
+
+            if (r.empty()) {
+                std::cerr << "No event found with id: " << event_id << std::endl;
+            } else {
+                std::cout << "Event with ID " << event_id << " updated successfully. New status: " << status << std::endl;
+            }
+
+            txn.commit();
+        } catch (const std::exception& e) {
+            std::cerr << "Update event status failed: " << e.what() << std::endl;
+        }
+    }
 }
