@@ -14,7 +14,7 @@ void onEventStatusChangeSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
 
         bot.getApi().deleteMessage(query->message->chat->id, query->message->messageId);
 
-        std::optional<std::string> result = db.changeEventStatus(action, notification_id);
+        std::optional<std::string> result = db.changeEventStatus(notification_id, action);
 
         bot.getApi().sendMessage(query->message->chat->id, result.value_or("Что то пошло не так.."));
     } catch (std::exception &e) {

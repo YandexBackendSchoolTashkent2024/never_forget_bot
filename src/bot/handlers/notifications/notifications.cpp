@@ -1,7 +1,6 @@
 #include <tgbot/tgbot.h>
 
-#include "../../../models/event.hpp"
-#include "../../../models/notification.hpp"
+#include "notifications.hpp"
 
 namespace NeverForgetBot::Notifications {
 
@@ -29,16 +28,13 @@ TgBot::InlineKeyboardMarkup::Ptr createNotificationKeyboard(const std::string& n
     return keyboard;
 }
 
-void sendNotification(long chatId, TgBot::Bot &bot, const Notification& notification, const Event& event) {
+void sendNotification(long chatId, TgBot::Bot &bot, const std::string &notification_id, const std::string &notification_time, const std::string &event_name, const std::string &event_time) {
     std::string message =
-        "Детали уведомления:\n\n" +
-        std::string("Событие: ") + event.time + "\n" +
-        "Запланировано: " + notification.time + "\n" +
-        "Создано: " + notification.createdAt + "\n";
+        "Уведомление для события:\n\n" + event_name +
+        "Время события: " + event_time + "\n" +
+        "Отправлено: " + notification_time + "\n";
 
-    message += "Отправлено: " + notification.sentTime.value_or("❌") + "\n";
-
-    auto keyboard = createNotificationKeyboard(notification.id);
+    auto keyboard = createNotificationKeyboard(notification_id);
 
     bot.getApi().sendMessage(chatId, message, nullptr, nullptr, keyboard, "Markdown");
 }
