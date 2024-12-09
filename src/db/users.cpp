@@ -44,24 +44,23 @@ std::optional<std::string> Database::insertUser(long telegram_id, const std::opt
     }
 }
 
-bool Database::updateUserTimeZone(long telegram_id, const int& offset) {
+void Database::updateUserTimeZone(long telegram_id, const int& tzoffset) {
     if (!conn || !conn->is_open()) {
         std::cerr << "Database connection is not open\n";
-        return false;
+        //todo error
     }
 
     try {
         pqxx::work txn(*conn);
         std::string query = 
-            "UPDATE \"user\" SET \"timezone\" = " + txn.quote(offset) + ", \"updated_at\" = NOW() "
+            "UPDATE \"user\" SET \"timezone\" = " + txn.quote(tzoffset) + ", \"updated_at\" = NOW() "
             "WHERE \"telegram_id\" = " + txn.quote(telegram_id) + ";";
 
         txn.exec(query);
         txn.commit();
-        return true;
     } catch (const std::exception &e) {
         std::cerr << "Update timezone failed: " << e.what() << std::endl;
-        return false;
+     //todo error
     }
 }
 

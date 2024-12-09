@@ -44,10 +44,12 @@ bool sentSuccessfully = (sentMessage != nullptr);
         std::cout << "✅ Successfully sent reminder to user " << telegram_id << std::endl;
         
         // Step 3: After successfully sending, update the sent_time in the database
-        if (db.updateSentTimeForNotification(notification_id)) {
+        try {
+            db.updateSentTimeForNotification(notification_id);
             std::cout << "✅ Successfully updated sent_time for notification: " << notification_id << std::endl;
-        } else {
-            std::cerr << "❌ Failed to update sent_time for notification: " << notification_id << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "❌ Error updating sent_time for notification: " << notification_id
+                    << ". Reason: " << e.what() << std::endl;
         }
     } else {
         std::cerr << "❌ Failed to send reminder to user " << telegram_id << std::endl;
