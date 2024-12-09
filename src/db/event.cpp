@@ -1,6 +1,6 @@
 #include "db.hpp"
 #include "../bot/handlers/events/events.hpp"
-#include <strstream>
+#include <exception>
 
 namespace NeverForgetBot {
 
@@ -74,10 +74,10 @@ namespace NeverForgetBot {
 
         try {
             pqxx::work txn(*conn);
-            
+
             std::string user_id_query = "SELECT id FROM \"user\" WHERE telegram_id = " + txn.quote(telegram_id) + ";";
             pqxx::result user_result = txn.exec(user_id_query);
-            
+
             if (user_result.empty()) {
                 std::cerr << "No user found with telegram_id: " << telegram_id << std::endl;
                 txn.commit();
@@ -107,11 +107,43 @@ namespace NeverForgetBot {
                 events.push_back(event);
             }
 
-        } catch (const std::exception& e) {
+        } catch (const std::exception &e) {
             std::cerr << "Select events failed: " << e.what() << std::endl;
         }
 
         return events;
+    }
+
+    std::optional<std::string> Database::changeEventStatus(const std::string &notification_id, const std::string &action) {
+        if (!conn || !conn->is_open()) {
+            std::cerr << "Database connection is not open\n";
+            return std::nullopt;
+        }
+
+        try {
+            pqxx::work txn(*conn);
+            conn->prepare("update_event_status",
+                "UPDATE event "
+                "SET status = $1, updated_at = NOW() "
+                "FROM notification "
+                "WHERE notification.id = $2 "
+                "AND notification.event_id = event.id "
+                "RETURNING event.id"
+            );
+            pqxx::result result = txn.exec_prepared("update_event_status", action, notification_id);
+
+            if (result.empty()) {
+                std::cerr << "Failed to update event status for notification: " << notification_id << std::endl;
+                return std::nullopt;
+            }
+
+            txn.commit();
+
+            return result[0]["id"].as<std::string>();
+        } catch (std::exception &e) {
+            std::cerr << "Failed to update event status for notification: " << notification_id << std::endl;
+            return std::nullopt;
+        }
     }
 
 }
