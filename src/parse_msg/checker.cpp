@@ -12,6 +12,10 @@ Checker::Checker(const std::unordered_map<std::string, std::string> &input,
     auto nameEventIt = input.find("name_event");
     if (nameEventIt != input.end() && !nameEventIt->second.empty()) {
         nameEvent = nameEventIt->second;
+        if (nameEvent == "null") {
+            throw std::invalid_argument("Please provide event name");
+
+        }
     } else {
         throw std::invalid_argument("Missing or empty field: name_event");
     }
@@ -20,6 +24,9 @@ Checker::Checker(const std::unordered_map<std::string, std::string> &input,
     if (timeIt != input.end() && !timeIt->second.empty()) {
         time = timeIt->second;
         if (!validateTimestamp(time)) {
+            if (time=="null") {
+                throw std::invalid_argument("Please provide event time");
+            }
             throw std::invalid_argument("Invalid timestamp format: " + time);
         }
     } else {
@@ -27,10 +34,14 @@ Checker::Checker(const std::unordered_map<std::string, std::string> &input,
     }
 
     auto typeIt = input.find("type");
-    if (typeIt != input.end()) {
-        type = stringToEventType(typeIt->second);
+    if (typeIt != input.end() && !typeIt->second.empty()) {
+        try {
+            type = stringToEventType(typeIt->second);
+        } catch (const std::invalid_argument &e) {
+            type = EventType::ONE_TIME; // Default to ONE_TIME if invalid
+        }
     } else {
-        throw std::invalid_argument("Missing field: type");
+        type = EventType::ONE_TIME; // Default to ONE_TIME if missing
     }
 
     std::cout << "Processing notifications..." << std::endl;
@@ -63,9 +74,9 @@ std::vector<std::string> Checker::getNotifications() const {
 }
 
 Checker::EventType Checker::stringToEventType(const std::string &typeStr) const {
-    if (typeStr == "while-not-done") {
+    if (typeStr == "WHILE_NOT_DONE") {
         return EventType::WHILE_NOT_DONE;
-    } else if (typeStr == "one-time") {
+    } else if (typeStr == "ONE_TIME") {
         return EventType::ONE_TIME;
     } else {
         throw std::invalid_argument("Invalid event type: " + typeStr);
@@ -73,10 +84,6 @@ Checker::EventType Checker::stringToEventType(const std::string &typeStr) const 
 }
 
 bool Checker::validateTimestamp(const std::string &timestamp) const {
-    if (timestamp.empty()) {
-        return true;
-    }
-
     std::regex timestampRegex(R"(^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$)");
     return std::regex_match(timestamp, timestampRegex);
 }

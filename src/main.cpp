@@ -36,7 +36,6 @@ int main() {
     TgBot::Bot bot(botToken);
 
 
-    // here crono job starting 
     chrono_task::start_periodic_task(db, bot);
 
     bot.getEvents().onCommand("start", [&bot, &db](TgBot::Message::Ptr message) {
@@ -64,38 +63,20 @@ int main() {
         NeverForgetBot::CallbackHandlers::onCallbackQuery(query, bot,db);
     });
 
-    bot.getEvents().onNonCommandMessage([&bot](TgBot::Message::Ptr message) {
+    bot.getEvents().onNonCommandMessage([&bot, &db](TgBot::Message::Ptr message) {
         std::string message_text;
         try {
             Checker checker = processMessage(message->text);
 
-            message_text += "Event Name: " + checker.getNameEvent() + "\n";
-            message_text += "Event Time: " + checker.getTime() + "\n";
-            message_text += std::string("Event Type: ") +
-                            (checker.getType() == Checker::EventType::ONE_TIME ? "one-time" : "while-not-done") + "\n";
+            NeverForgetBot::Utils::saveEvent(message, bot, db, checker);
 
-            const auto& notifications = checker.getNotifications();
-            if (!notifications.empty()) {
-                message_text += "Notifications: ";
-                for (const auto& n : notifications) {
-                    message_text += n + " ";
-                }
-                message_text += "\n";
-            } else {
-                message_text += "Notifications: null\n";
-            }
         } catch (const std::exception& e) {
             message_text = "Error processing your message: " + std::string(e.what());
-        }
-        if (!message_text.empty()) {
             bot.getApi().sendMessage(message->chat->id, message_text);
-        } else {
-            bot.getApi().sendMessage(message->chat->id, "I couldn't understand your message. Please try again.");
         }
     });
 
     NeverForgetBot::Utils::startLongPolling(bot);
-    // here crono job ending
 
     chrono_task::stop_periodic_task();
     return 0;
