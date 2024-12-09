@@ -27,6 +27,7 @@ add_executable(NeverForgetBot
     src/db/db.cpp
     src/db/users.cpp
     src/db/event.cpp
+    src/db/events.cpp
     src/bot/handlers/command_handlers.cpp
     src/bot/utils/utils.cpp
     src/chrono/periodic_task.cpp

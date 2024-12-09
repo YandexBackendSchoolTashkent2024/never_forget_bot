@@ -20,7 +20,10 @@ public:
 
     std::optional<std::string> insertUser(long telegram_id, const std::optional<std::string>& username, const std::optional<std::string>& name);
 
-    std::optional<std::string> insertEvent(long telegram_id, const std::optional<std::string>& username, const std::optional<std::string>& name);
+    std::optional<std::string> insertEvent(const std::optional<std::string>& user_id, 
+                                       const std::string& event_name, 
+                                       const std::string& event_time, 
+                                       const std::string& event_type);
 
 
     bool updateUserTimeZone(long telegram_id, const int& offset);

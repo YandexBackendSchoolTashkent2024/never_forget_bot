@@ -9,6 +9,11 @@
 #include "../../db/db.hpp"
 #include "../../parse_msg/checker.hpp"
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <ctime>
+
 
 namespace NeverForgetBot::Utils {
 
@@ -21,6 +26,9 @@ namespace NeverForgetBot::Utils {
     void startLongPolling(TgBot::Bot& bot);
 
     void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker event) ;
+
+    std::string adjustEventTime(const std::string& event_time, int user_timezone);
+
 
 
 } // namespace NeverForgetBot::Utils
