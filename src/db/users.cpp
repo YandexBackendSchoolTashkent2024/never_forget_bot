@@ -90,4 +90,33 @@ int Database::getUserTimeZone(long telegram_id) {
     }
 }
 
+std::optional<std::string> Database::getUserIdByTelegramId(long telegram_id) {
+    if (!conn || !conn->is_open()) {
+        std::cerr << "Database connection is not open\n";
+        return std::nullopt;
+    }
+
+    try {
+        pqxx::work txn(*conn);
+        std::string query = 
+            "SELECT \"id\" FROM \"user\" WHERE \"telegram_id\" = " + txn.quote(telegram_id) + ";";
+
+        pqxx::result r = txn.exec(query);
+
+        if (r.empty()) {
+            std::cerr << "No user found with telegram_id: " << telegram_id << "\n";
+            return std::nullopt;
+        }
+
+        // Assuming "id" is stored as a UUID string in the DB
+        std::string user_id = r[0][0].as<std::string>();
+        txn.commit();
+        return user_id;
+    } catch (const std::exception &e) {
+        std::cerr << "Get user_id failed: " << e.what() << std::endl;
+        return std::nullopt;
+    }
+}
+
+
 }

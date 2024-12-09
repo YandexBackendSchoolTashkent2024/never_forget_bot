@@ -79,6 +79,7 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     notifications = event.getNotifications();
     // auto userId = db.insertUser(telegram_id, username, name);
 
+    db.insertEvent(telegram_id, event_name, event_time);
     if (event_name.size()) {
         bot.getApi().sendMessage(message->chat->id, "Saved event successfully");
     } else {

@@ -8,39 +8,19 @@ std::optional<std::string> Database::insertEvent(long telegram_id, const std::op
         return std::nullopt;
     }
 
-    try {
-        pqxx::work txn(*conn);
-        std::string query = "INSERT INTO \"user\" (telegram_id, username, name) VALUES (" + txn.quote(telegram_id) + ", ";
-
-        if (username.has_value()) {
-            query += txn.quote(username.value());
-        } else {
-            query += "NULL";
-        }
-
-        query += ", ";
-
-        if (name.has_value()) {
-            query += txn.quote(name.value());
-        } else {
-            query += "NULL";
-        }
-
-        query += ") RETURNING telegram_id;";
-
-        pqxx::result r = txn.exec(query);
-        txn.commit();
-
-        if (r.size() == 1) {
-            return r[0][0].as<std::string>();
-        } else {
-            std::cerr << "Unexpected number of rows returned\n";
-            return std::nullopt;
-        }
-    } catch (const std::exception &e) {
-        std::cerr << "Insert user failed: " << e.what() << std::endl;
-        return std::nullopt;
+    // Retrieve user_id from telegram_id
+    std::optional<std::string> user_id = db.getUserIdByTelegramId(telegram_id);
+    if (!user_id.has_value()) {
+        std::cerr << "Database connection is not open\n";
+        bot.getApi().sendMessage(message->chat->id, "User not found, please /start the bot first.");
+        return;
     }
+    else{
+        std::cerr << "Database connection is not open\n";
+        bot.getApi().sendMessage(message->chat->id, "User id: ">> user_id);
+
+    }
+    return;
 }
 
 bool Database::updateUserTimeZone(long telegram_id, const std::string& timezone) {
