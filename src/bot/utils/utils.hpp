@@ -26,7 +26,7 @@ namespace NeverForgetBot::Utils {
     void startLongPolling(TgBot::Bot& bot);
 
     std::string formatTimeWithTimezone(long telegram_id, const std::string& time, NeverForgetBot::Database& db);
-    void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker event) ;
+    void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker &event) ;
 
     std::string adjustEventTime(const std::string& event_time, int user_timezone);
 
