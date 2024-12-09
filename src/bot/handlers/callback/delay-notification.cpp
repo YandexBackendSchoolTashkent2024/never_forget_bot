@@ -7,7 +7,7 @@ void onDelayNotificationSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
         std::string data = query->data;
         int colon_idx = data.find(":");
 
-        std::string interval = data.substr(6, colon_idx);
+        std::string interval = data.substr(6, colon_idx - 6);
         std::cout << interval;
         std::string notification_id = data.substr(colon_idx + 1);
         std::cout << notification_id;
@@ -16,7 +16,9 @@ void onDelayNotificationSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
 
         bot.getApi().deleteMessage(query->message->chat->id, query->message->messageId);
 
-        std::string message = "Уведомление успешно отложено на " + interval.substr(0, interval.length()-3) + "минут. Напомним в " + notification.time;
+        std::string message = "Уведомление успешно отложено на " +
+            interval.substr(0, interval.length() - 3) + " минут. Напомним " +
+            notification.time;
         bot.getApi().sendMessage(query->message->chat->id, message);
     } catch (std::exception &e) {
         std::cerr << "Notification delay failed: " << e.what() << '\n';

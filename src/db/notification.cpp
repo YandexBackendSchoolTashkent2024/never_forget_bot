@@ -83,8 +83,8 @@ Notification Database::delayNotification(const std::string &notification_id, con
         pqxx::work txn(*conn);
 
         conn->prepare("delay_notification",
-            "UPDATE notifications "
-            "SET time = NOW() + $1::INTERVAL "
+            "UPDATE notification "
+            "SET time = time + $1::INTERVAL "
             "WHERE id = $2 "
             "RETURNING id, time, sent_time, created_at, updated_at"
         );

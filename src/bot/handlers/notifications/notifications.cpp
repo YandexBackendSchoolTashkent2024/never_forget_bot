@@ -1,5 +1,3 @@
-#include <tgbot/tgbot.h>
-
 #include "notifications.hpp"
 
 namespace NeverForgetBot::Notifications {
@@ -31,17 +29,17 @@ TgBot::InlineKeyboardMarkup::Ptr createNotificationKeyboard(const std::string& n
 void sendNotification(
     long chatId,
     TgBot::Bot &bot,
-    std::string &notification_id,
-    std::string &notification_time,
-    std::string &event_name,
-    std::string &event_time
+    const std::string &notification_id,
+    const std::string &notification_time,
+    const std::string &event_name,
+    const std::string &event_time
 ) {
     std::string message =
         "🔔 Напоминание! 🔔\n\n"
         "📢 Событие: *" + event_name +
         "*\n📅 Время события: *" + event_time +
         "*\n📨 Отправлено: *" + notification_time +
-        "*\n🫡 Ваш дружелюбный бот всегда на страже ваших дел";
+        "*\n\n🫡 Ваш дружелюбный бот всегда на страже ваших дел";
 
     auto keyboard = createNotificationKeyboard(notification_id);
 

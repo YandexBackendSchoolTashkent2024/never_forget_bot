@@ -7,16 +7,18 @@ void onEventStatusChangeSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
         std::string data = query->data;
         int colon_idx = data.find(":");
 
-        std::string action = data.substr(7, colon_idx-7);
-        std::cout << action << '\n';
+        std::string action = data.substr(7, colon_idx - 7);
         std::string notification_id = data.substr(colon_idx + 1);
-        std::cout << notification_id << '\n';
 
         bot.getApi().deleteMessage(query->message->chat->id, query->message->messageId);
 
-        std::optional<std::string> result = db.changeEventStatus(notification_id, action);
+        std::string result = (
+            db.changeEventStatus(notification_id, action).has_value() ? 
+            "Успешно!" :
+            "Что то пошло не так..."
+        );
 
-        bot.getApi().sendMessage(query->message->chat->id, result.value_or("Что то пошло не так.."));
+        bot.getApi().sendMessage(query->message->chat->id, result);
     } catch (std::exception &e) {
         std::cerr << "Event status change failed: " << e.what() << '\n';
     }
