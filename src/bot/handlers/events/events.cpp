@@ -34,11 +34,9 @@ namespace NeverForgetBot::Events {
 
         std::string message = "Предстоящие события:\n\n";
         for (const auto& event : events) {
-            std::string status_str;
-
             message +=
                 "*" + event.name + "*\n" +
-                "Время: " + Utils::formatTimeWithTimezone(chat_id, event.time, db).value_or(event.time) + "\n" +
+                "Дата события: " + Utils::formatTimeWithTimezone(chat_id, event.time, db).value_or(event.time) + "\n\n";
         }
 
         bot.getApi().sendMessage(chat_id, message, nullptr, nullptr, nullptr, "Markdown");
