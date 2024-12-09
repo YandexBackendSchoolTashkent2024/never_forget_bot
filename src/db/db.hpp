@@ -25,6 +25,9 @@ public:
                                        const std::string& event_time, 
                                        const std::string& event_type);
 
+    std::optional<std::string> insertNotification(const std::string& event_id, const std::string& notification_time);
+
+
 
     bool updateUserTimeZone(long telegram_id, const int& offset);
   

@@ -71,7 +71,9 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     std::string event_name = event.getNameEvent();
     std::string event_time = event.getTime();
     std::string event_type;
-
+    vector<std::string> notifications = event.getNotifications();
+    
+    std::string notification_time = notifications[0];
     // Ensure `event_type` is valid
     try {
         event_type = event.getType() == Checker::EventType::WHILE_NOT_DONE ? "WHILE_NOT_DONE" : "ONE_TIME";
@@ -83,9 +85,13 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     int user_tz = db.getUserTimeZone(telegram_id);
 
     event_time = adjustEventTime(event_time, user_tz);
+    notification_time = adjustEventTime(notification_time, user_tz);
+    std::cout<<"Event time: "<<event_time<<"\nNotification time: "<<notification_time<<endl;
     if (user_id.has_value()) {
         auto event_id = db.insertEvent(user_id, event_name, event_time, event_type);
         if (event_id.has_value()) {
+            db.insertNotification(event_id.value(), notification_time);
+
             bot.getApi().sendMessage(message->chat->id, "Event has been added successfully");
         }
         else {
