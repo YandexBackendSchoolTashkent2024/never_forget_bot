@@ -10,5 +10,6 @@ namespace NeverForgetBot::CallbackHandlers {
 
     void onDelayNotificationSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, NeverForgetBot::Database& db);
 
-}
+    void onEventStatusChangeSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, NeverForgetBot::Database& db);
 
+}

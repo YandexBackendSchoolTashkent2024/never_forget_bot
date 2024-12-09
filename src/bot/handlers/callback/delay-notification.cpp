@@ -1,5 +1,4 @@
 #include "callback.hpp"
-#include <exception>
 
 namespace NeverForgetBot::CallbackHandlers {
 

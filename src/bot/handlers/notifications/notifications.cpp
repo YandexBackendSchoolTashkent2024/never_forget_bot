@@ -9,9 +9,9 @@ TgBot::InlineKeyboardMarkup::Ptr createNotificationKeyboard(const std::string& n
     auto keyboard = std::make_shared<TgBot::InlineKeyboardMarkup>();
 
     keyboard->inlineKeyboard.push_back({
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Сделано", "", "status_complete:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Не сделано", "", "status_incomplete:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Удалить", "", "status_delete:" + notification_id})
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Сделано", "", "status_COMPLETED:" + notification_id}),
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Не сделано", "", "status_NOT_COMPLETED:" + notification_id}),
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Удалить", "", "status_DELETED:" + notification_id})
     });
 
     keyboard->inlineKeyboard.push_back({
