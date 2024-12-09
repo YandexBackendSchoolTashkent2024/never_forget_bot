@@ -1,15 +1,14 @@
 #include <iostream>
 #include <string>
 #include <curl/curl.h>
-#include "picojson.h"  // Include picojson header
+#include "picojson.h" 
 #include <fstream>
-#include "generate_aim.h"  // Include the header file for the generateAIMToken function
+#include "generate_aim.h"
 #include <unordered_map>
 #include <vector>
 #include <chrono>
 #include <iomanip>
 
-// Callback function to handle the response
 size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     size_t totalSize = size * nmemb;
     std::string* response = (std::string*)userp;
@@ -17,21 +16,17 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
     return totalSize;
 }
 
-// Function to remove markdown backticks (```)
 std::string cleanJsonString(const std::string& rawJsonStr) {
     std::string cleanJsonStr = rawJsonStr;
 
-    // Remove leading backticks (if any)
     if (cleanJsonStr.substr(0, 3) == "```") {
         cleanJsonStr = cleanJsonStr.substr(3);
     }
 
-    // Remove trailing backticks (if any)
     if (cleanJsonStr.size() >= 3 && cleanJsonStr.substr(cleanJsonStr.size() - 3) == "```") {
         cleanJsonStr = cleanJsonStr.substr(0, cleanJsonStr.size() - 3);
     }
 
-    // Trim any leading or trailing whitespace
     cleanJsonStr.erase(0, cleanJsonStr.find_first_not_of(" \t\n\r"));
     cleanJsonStr.erase(cleanJsonStr.find_last_not_of(" \t\n\r") + 1);
 
@@ -44,19 +39,16 @@ std::pair<std::unordered_map<std::string, std::string>, std::vector<std::string>
     std::string readBuffer;
     std::string full_msg;
 
-    // Get current time from system clock
     auto now = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
     full_msg = msg + " Current time is: " + std::ctime(&time_t_now);
 
-    // Get the IAM token from the generateAIMToken function
     std::string iam_token = generateAIMToken();
     if (iam_token.empty()) {
         std::cerr << "Error: Failed to retrieve AIM token!" << std::endl;
         return {};
     }
 
-    // Load the JSON payload from a file
     std::ifstream file("src/parse_msg/prompt.json");
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open prompt.json file!" << std::endl;
@@ -64,7 +56,6 @@ std::pair<std::unordered_map<std::string, std::string>, std::vector<std::string>
     }
     std::string json_payload((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-    // Parse the JSON payload into a picojson object
     picojson::value json_obj;
     std::string err = picojson::parse(json_obj, json_payload);
     if (!err.empty()) {
@@ -72,7 +63,6 @@ std::pair<std::unordered_map<std::string, std::string>, std::vector<std::string>
         return {};
     }
 
-    // Modify the messages[1].text field
     if (json_obj.is<picojson::object>()) {
         picojson::array& messages = json_obj.get("messages").get<picojson::array>();
         if (messages.size() > 1 && messages[1].is<picojson::object>()) {
@@ -89,31 +79,24 @@ std::pair<std::unordered_map<std::string, std::string>, std::vector<std::string>
         }
     }
 
-    // Convert the modified JSON back to a string
     std::string modified_json_payload = json_obj.serialize();
 
     curl = curl_easy_init();
     if (curl) {
-        // Set the URL for the POST request
         curl_easy_setopt(curl, CURLOPT_URL, "https://llm.api.cloud.yandex.net/foundationModels/v1/completion");
 
-        // Set the headers
         struct curl_slist* headers = nullptr;
         headers = curl_slist_append(headers, "Content-Type: application/json");
         headers = curl_slist_append(headers, ("Authorization: Bearer " + iam_token).c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
-        // Set the POST data (modified JSON payload)
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, modified_json_payload.c_str());
 
-        // Set the write callback to capture the response
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
 
-        // Perform the POST request
         res = curl_easy_perform(curl);
 
-        // Check for errors
         if (res != CURLE_OK) {
             std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
             curl_slist_free_all(headers);
@@ -123,7 +106,6 @@ std::pair<std::unordered_map<std::string, std::string>, std::vector<std::string>
             curl_slist_free_all(headers);
             curl_easy_cleanup(curl);
 
-            // Parse the JSON response using picojson
             picojson::value response_json;
             err = picojson::parse(response_json, readBuffer);
             if (!err.empty()) {
@@ -131,7 +113,6 @@ std::pair<std::unordered_map<std::string, std::string>, std::vector<std::string>
                 return {};
             }
 
-            // Extract the event data and notifications
             std::unordered_map<std::string, std::string> eventData;
             std::vector<std::string> notifications;
 

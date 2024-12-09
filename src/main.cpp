@@ -36,7 +36,6 @@ int main() {
     TgBot::Bot bot(botToken);
 
 
-    // here crono job starting 
     chrono_task::start_periodic_task(db, bot);
 
     bot.getEvents().onCommand("start", [&bot, &db](TgBot::Message::Ptr message) {
@@ -78,7 +77,6 @@ int main() {
     });
 
     NeverForgetBot::Utils::startLongPolling(bot);
-    // here crono job ending
 
     chrono_task::stop_periodic_task();
     return 0;

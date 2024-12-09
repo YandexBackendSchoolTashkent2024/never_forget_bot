@@ -44,7 +44,6 @@ void startLongPolling(TgBot::Bot& bot) {
 std::vector<TgBot::BotCommand::Ptr> getBotCommands() {
     std::unordered_map<std::string, std::string> mp = {
         { "/upcoming_events", "получить список предстоящих событий" },
-        { "/settings", "отобразить меню настроек" },
         { "/help", "инструкция по использованию бота" },
         { "/start", "запуск бота" }
     };
@@ -64,6 +63,39 @@ std::string getBotDescription() {
     return "Добро пожаловать в Never Forget Bot!\n\n"
         "Создавайте напоминания и получайте своевременные уведомления без лишней траты времени.\n\n"
         "Начнем! 🎯";
+}
+
+std::string formatTimeWithTimezone(long telegram_id, const std::string& time, NeverForgetBot::Database& db) {
+    try {
+        int timezone = db.getUserTimeZone(telegram_id);
+
+        std::string timestamp = time.substr(0, 19);
+
+        std::tm timeStruct = {};
+        std::istringstream ss(timestamp);
+        ss >> std::get_time(&timeStruct, "%Y-%m-%d %H:%M:%S");
+        if (ss.fail()) {
+            throw std::runtime_error("Failed to parse timestamp");
+        }
+
+        time_t timeEpoch = std::mktime(&timeStruct);
+        if (timeEpoch == -1) {
+            throw std::runtime_error("Failed to convert to time_t");
+        }
+        timeEpoch += timezone * 3600;
+
+        std::tm* updatedTimeStruct = std::gmtime(&timeEpoch);
+        if (!updatedTimeStruct) {
+            throw std::runtime_error("Failed to convert back to tm struct");
+        }
+
+        std::ostringstream output;
+        output << std::put_time(updatedTimeStruct, "%Y-%m-%d %H:%M:%S");
+        return output.str();
+    } catch (const std::exception& e) {
+        std::cerr << "Error formatting time: " << e.what() << std::endl;
+        return "Invalid time";
+    }
 }
 
 void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker event) {
@@ -103,7 +135,6 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
 }
 
 std::string adjustEventTime(const std::string& event_time, int user_timezone) {
-    // Parse the event time string into a std::tm structure
     std::tm tm = {};
     std::istringstream ss(event_time);
     ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
@@ -111,22 +142,18 @@ std::string adjustEventTime(const std::string& event_time, int user_timezone) {
         throw std::runtime_error("Failed to parse event time: " + event_time);
     }
 
-    // Convert the std::tm structure to time_t (UTC)
     std::time_t utc_time = std::mktime(&tm);
     if (utc_time == -1) {
         throw std::runtime_error("Failed to convert time to UTC");
     }
 
-    // Adjust for the user's timezone (subtract timezone offset in seconds)
     utc_time -= user_timezone * 3600;
 
-    // Convert the adjusted time_t back to std::tm
     std::tm* adjusted_tm = std::gmtime(&utc_time);
     if (!adjusted_tm) {
         throw std::runtime_error("Failed to convert adjusted time to std::tm");
     }
 
-    // Format the adjusted time back to ISO 8601 string
     std::ostringstream adjusted_time_ss;
     adjusted_time_ss << std::put_time(adjusted_tm, "%Y-%m-%dT%H:%M:%SZ");
     return adjusted_time_ss.str();
