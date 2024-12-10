@@ -27,4 +27,6 @@ namespace NeverForgetBot::Utils {
 
     std::string adjustEventTime(const std::string& event_time, int user_timezone);
 
+    std::string manual_format_in_russian(const std::string& iso_datetime);
+
 }

@@ -7,6 +7,14 @@
 #include <string>
 #include <optional>
 #include <type_traits>
+#include <iomanip>
+#include <sstream>
+#include <locale>
+#include <codecvt>
+
+#include "../models/event.hpp"
+#include "../models/user.hpp"
+#include "../models/notification.hpp"
 
 #include "../models/event.hpp"
 #include "../models/user.hpp"
@@ -44,6 +52,7 @@ public:
     std::optional<std::string> changeEventStatus(const std::string &notification_id, const std::string &action);
 
     std::optional<std::string> getUserIdByTelegramId(long telegram_id);
+
 private:
     pqxx::connection* conn;
 };

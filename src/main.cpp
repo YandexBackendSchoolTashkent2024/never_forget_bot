@@ -9,7 +9,6 @@
 #include "chrono/periodic_task.hpp"
 #include "parse_msg/checker.hpp"
 #include "parse_msg/parse.hpp"
-#include <iostream>
 #include <vector>
 
 int main() {
@@ -21,7 +20,7 @@ int main() {
     const char* dbPassword = std::getenv("POSTGRES_PASSWORD");
 
     if (!botToken || !dbHost || !dbPort || !dbName || !dbUser || !dbPassword) {
-        std::cerr << "Missing environment variables. Please check your .env file.\n";
+        std::cerr << "Отсутствуют переменные окружения. Пожалуйста, проверьте ваш .env файл.\n";
         return 1;
     }
 
@@ -55,7 +54,7 @@ int main() {
     });
 
     bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
-        bot.getApi().sendMessage(message->chat->id, "Invalid command");
+        bot.getApi().sendMessage(message->chat->id, "Неверная команда");
     });
 
     bot.getEvents().onCallbackQuery([&bot,&db](TgBot::CallbackQuery::Ptr query) {
@@ -70,7 +69,7 @@ int main() {
             NeverForgetBot::Utils::saveEvent(message, bot, db, checker);
 
         } catch (const std::exception& e) {
-            message_text = "Error processing your message: " + std::string(e.what());
+            message_text = "Ошибка обработки вашего сообщения: " + std::string(e.what());
             bot.getApi().sendMessage(message->chat->id, message_text);
         }
     });
