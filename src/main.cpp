@@ -4,14 +4,11 @@
 #include "db/db.hpp"
 #include "bot/utils/utils.hpp"
 #include "bot/commands/commands.hpp"
-#include "bot/commands/commands.hpp"
 #include "bot/handlers/notifications/notifications.hpp"
-#include "bot/handlers/callback/callback.hpp"
 #include "bot/handlers/callback/callback.hpp"
 #include "chrono/periodic_task.hpp"
 #include "parse_msg/checker.hpp"
 #include "parse_msg/parse.hpp"
-#include <iostream>
 #include <vector>
 
 int main() {
