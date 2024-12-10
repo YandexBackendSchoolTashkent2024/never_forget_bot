@@ -6,6 +6,8 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+#include <filesystem>
+#include <optional>
 
 #include "../../db/db.hpp"
 #include "../../parse_msg/checker.hpp"
@@ -21,11 +23,11 @@ namespace NeverForgetBot::Utils {
 
     void startLongPolling(TgBot::Bot& bot);
 
-    std::optional<std::string> formatTimeWithTimezone(long telegram_id, const std::string& time, NeverForgetBot::Database& db);
-
     void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker &event) ;
 
     std::string adjustEventTime(const std::string& event_time, int user_timezone);
+
+    std::optional<std::string> convertToISO(long telegram_id, const std::string& timestamp_time, NeverForgetBot::Database& db);
 
     std::string manual_format_in_russian(const std::string& iso_datetime);
 
