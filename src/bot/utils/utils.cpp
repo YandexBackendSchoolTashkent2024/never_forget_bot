@@ -80,19 +80,16 @@ std::optional<std::string> formatTimeWithTimezone(long telegram_id, const std::s
         ss >> std::get_time(&timeStruct, "%Y-%m-%d %H:%M:%S");
         if (ss.fail()) {
             throw std::runtime_error("Ошибка при разборе временной метки");
-            throw std::runtime_error("Ошибка при разборе временной метки");
         }
 
         time_t timeEpoch = std::mktime(&timeStruct);
         if (timeEpoch == -1) {
-            throw std::runtime_error("Ошибка преобразования времени в time_t");
             throw std::runtime_error("Ошибка преобразования времени в time_t");
         }
         timeEpoch += timezone * 3600;
 
         std::tm* updatedTimeStruct = std::gmtime(&timeEpoch);
         if (!updatedTimeStruct) {
-            throw std::runtime_error("Ошибка преобразования времени в структуру tm");
             throw std::runtime_error("Ошибка преобразования времени в структуру tm");
         }
 
