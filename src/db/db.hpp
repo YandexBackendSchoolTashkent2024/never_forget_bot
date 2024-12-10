@@ -50,11 +50,9 @@ public:
 
     Notification delayNotification(const std::string &notification_id, const std::string &interval);
 
-    std::optional<std::string> changeEventStatus(const std::string &notification_id, const std::string &action);
+    std::optional<std::string> changeEventStatus(const std::string &event_id, const std::string &action);
 
     std::optional<std::string> getUserIdByTelegramId(long telegram_id);
-
-     void updateEventStatus(const std::string event_id,const std::string status);
 
 private:
     pqxx::connection* conn;

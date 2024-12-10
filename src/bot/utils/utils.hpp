@@ -29,6 +29,6 @@ namespace NeverForgetBot::Utils {
 
     std::optional<std::string> convertToISO(long telegram_id, const std::string& timestamp_time, NeverForgetBot::Database& db);
 
-    std::string manual_format_in_russian(const std::string& iso_datetime);
+    std::string formatDateInRussian(const std::string& iso_datetime);
 
 }

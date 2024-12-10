@@ -1,4 +1,5 @@
 #include "callback.hpp"
+
 namespace NeverForgetBot::CallbackHandlers {
 
     void onCallbackQuery(TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, Database& db){
@@ -11,9 +12,6 @@ namespace NeverForgetBot::CallbackHandlers {
             onDelayNotificationSelection(query, bot, db);
         } else if (callbackData.find("status") == 0) {
             onEventStatusChangeSelection(query, bot, db);
-        } else if(callbackData.find("upcomming-event-") == 0){
-            std::string queryData = callbackData.substr(16);
-            onUpcommingEventSelection(queryData, query, bot,db);
         } else {
             bot.getApi().sendMessage(query->message->chat->id, "Unknown selection.");
         }

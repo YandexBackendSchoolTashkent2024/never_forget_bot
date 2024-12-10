@@ -83,16 +83,16 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
 
     std::string msg = "Детали созданного события:";
     msg += "\nНазвание события: " + event_name;
-    msg += "\nВремя события: " + manual_format_in_russian(event_time);
+    msg += "\nВремя события: " + formatDateInRussian(event_time);
     if (notifications.empty()) {
-        msg += "\nВремя уведомления: " + manual_format_in_russian(event_time); 
+        msg += "\nВремя уведомления: " + formatDateInRussian(event_time); 
     }
 
     int user_tz = db.getUserTimeZone(telegram_id);
     event_time = adjustEventTime(event_time, user_tz);
     if (!notifications.empty()){
         notification_time = notifications[0];
-        msg += "\nВремя уведомления: " + manual_format_in_russian(notification_time); 
+        msg += "\nВремя уведомления: " + formatDateInRussian(notification_time); 
         notification_time = adjustEventTime(notification_time, user_tz);
     }
     else {
@@ -185,7 +185,7 @@ std::optional<std::string> convertToISO(long telegram_id, const std::string& tim
     }
 }
 
-std::string manual_format_in_russian(const std::string& iso_datetime) {
+std::string formatDateInRussian(const std::string& iso_datetime) {
     const std::vector<std::string> russian_months = {
         "января", "февраля", "марта", "апреля", "мая", "июня",
         "июля", "августа", "сентября", "октября", "ноября", "декабря"

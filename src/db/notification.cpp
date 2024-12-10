@@ -13,7 +13,7 @@ std::vector<std::vector<std::string>> Database::fetchPendingNotifications() {
     try {
         pqxx::work txn(*conn);
         std::string query = R"(
-            SELECT n.id, u.telegram_id, e.name, e.time, n.time
+            SELECT n.id, e.id, u.telegram_id, e.name, e.time, n.time
             FROM "notification" n
             JOIN "event" e ON e.id = n.event_id
             JOIN "user" u ON u.id = e.user_id
@@ -29,13 +29,15 @@ std::vector<std::vector<std::string>> Database::fetchPendingNotifications() {
 
         for (const auto& row : r) {
             std::string notification_id = row[0].as<std::string>();
-            std::string telegram_id = row[1].as<std::string>();
-            std::string event_name = row[2].as<std::string>();
-            std::string event_time = row[3].as<std::string>();
-            std::string notification_time = row[4].as<std::string>();
+            std::string event_id = row[1].as<std::string>();
+            std::string telegram_id = row[2].as<std::string>();
+            std::string event_name = row[3].as<std::string>();
+            std::string event_time = row[4].as<std::string>();
+            std::string notification_time = row[5].as<std::string>();
 
             notifications.push_back({
                 notification_id,
+                event_id,
                 telegram_id,
                 event_name,
                 event_time,

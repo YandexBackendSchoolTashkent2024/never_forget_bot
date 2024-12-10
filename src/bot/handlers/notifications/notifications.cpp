@@ -2,13 +2,16 @@
 
 namespace NeverForgetBot::Notifications {
 
-TgBot::InlineKeyboardMarkup::Ptr createNotificationKeyboard(const std::string& notification_id) {
+TgBot::InlineKeyboardMarkup::Ptr createNotificationKeyboard(
+    const std::string &event_id,
+    const std::string& notification_id
+) {
     auto keyboard = std::make_shared<TgBot::InlineKeyboardMarkup>();
 
     keyboard->inlineKeyboard.push_back({
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Сделано", "", "status_COMPLETED:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Не сделано", "", "status_NOT_COMPLETED:" + notification_id}),
-        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Удалить", "", "status_DELETED:" + notification_id})
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Сделано", "", "status_COMPLETED:" + event_id}),
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Не сделано", "", "status_NOT_COMPLETED:" + event_id}),
+        TgBot::InlineKeyboardButton::Ptr(new TgBot::InlineKeyboardButton{"Удалить", "", "status_DELETED:" + event_id})
     });
 
     keyboard->inlineKeyboard.push_back({
@@ -33,16 +36,19 @@ void sendNotification(
     const std::string &notification_time,
     const std::string &event_name,
     const std::string &event_time,
-    Database &db
+    Database &db,
+    const std::string &event_id
 ) {
     std::string message =
         "🔔 Напоминание! 🔔\n\n"
         "📢 Событие: *" + event_name +
-        "*\n📅 Время события: *" + Utils::formatTimeWithTimezone(chatId, event_time, db).value_or(event_time) +
-        "*\n📨 Отправлено: *" + Utils::formatTimeWithTimezone(chatId, notification_time, db).value_or(notification_time) +
+        "*\n📅 Время события: *" +
+        Utils::formatDateInRussian(Utils::convertToISO(chatId, event_time, db).value_or(event_time)) +
+        "*\n📨 Отправлено: *" +
+        Utils::formatDateInRussian(Utils::convertToISO(chatId, notification_time, db).value_or(notification_time)) +
         "*\n\n🫡 Ваш дружелюбный бот всегда на страже ваших дел";
 
-    auto keyboard = createNotificationKeyboard(notification_id);
+    auto keyboard = createNotificationKeyboard(event_id, notification_id);
 
     bot.getApi().sendMessage(chatId, message, nullptr, nullptr, keyboard, "Markdown");
 }

@@ -8,12 +8,12 @@ void onEventStatusChangeSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
         int colon_idx = data.find(":");
 
         std::string action = data.substr(7, colon_idx - 7);
-        std::string notification_id = data.substr(colon_idx + 1);
+        std::string event_id = data.substr(colon_idx + 1);
 
         bot.getApi().deleteMessage(query->message->chat->id, query->message->messageId);
 
         std::string result = (
-            db.changeEventStatus(notification_id, action).has_value() ? 
+            db.changeEventStatus(event_id, action).has_value() ? 
             "Успешно!" :
             "Что то пошло не так..."
         );

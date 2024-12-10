@@ -56,7 +56,7 @@ std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
     return events;
 }
 
-std::optional<std::string> Database::changeEventStatus(const std::string &notification_id, const std::string &action) {
+std::optional<std::string> Database::changeEventStatus(const std::string &event_id, const std::string &action) {
     if (!conn || !conn->is_open()) {
         std::cerr << "Database connection is not open\n";
         return std::nullopt;
@@ -67,15 +67,13 @@ std::optional<std::string> Database::changeEventStatus(const std::string &notifi
         conn->prepare("update_event_status",
             "UPDATE event "
             "SET status = $1, updated_at = NOW() "
-            "FROM notification "
-            "WHERE notification.id = $2 "
-            "AND notification.event_id = event.id "
+            "WHERE id = $2 "
             "RETURNING event.id"
         );
-        pqxx::result result = txn.exec_prepared("update_event_status", action, notification_id);
+        pqxx::result result = txn.exec_prepared("update_event_status", action, event_id);
 
         if (result.empty()) {
-            std::cerr << "Failed to update event status for notification: " << notification_id << std::endl;
+            std::cerr << "Failed to update event status for event: " << event_id << std::endl;
             return std::nullopt;
         }
 
@@ -83,7 +81,7 @@ std::optional<std::string> Database::changeEventStatus(const std::string &notifi
 
         return result[0]["id"].as<std::string>();
     } catch (std::exception &e) {
-        std::cerr << "Failed to update event status for notification: " << notification_id << std::endl;
+        std::cerr << "Failed to update event status for event: " << event_id << std::endl;
         return std::nullopt;
     }
 }
@@ -158,33 +156,5 @@ std::optional<std::string> Database::insertNotification(const std::string& event
         return std::nullopt;
     }
 }
-
- void Database::updateEventStatus(const std::string event_id, const std::string status) {
-        if (!conn || !conn->is_open()) {
-            std::cerr << "Database connection is not open\n";
-            return;
-        }
-
-        try {
-            pqxx::work txn(*conn);
-            
-            std::string update_query = "UPDATE \"event\" "
-                                    "SET status = " + txn.quote(status) + ", updated_at = NOW() "
-                                    "WHERE id = " + txn.quote(event_id) + " "
-                                    "RETURNING id;";
-
-            pqxx::result r = txn.exec(update_query);
-
-            if (r.empty()) {
-                std::cerr << "No event found with id: " << event_id << std::endl;
-            } else {
-                std::cout << "Event with ID " << event_id << " updated successfully. New status: " << status << std::endl;
-            }
-
-            txn.commit();
-        } catch (const std::exception& e) {
-            std::cerr << "Update event status failed: " << e.what() << std::endl;
-        }
-    }
 
 }

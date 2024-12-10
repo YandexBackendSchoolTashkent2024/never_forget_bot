@@ -13,7 +13,7 @@ namespace NeverForgetBot::CallbackHandlers {
             eventId = queryData.substr(7);
          }
 
-        db.updateEventStatus(eventId,futureStatus);
+        db.changeEventStatus(eventId, futureStatus);
 
         bot.getApi().answerCallbackQuery(query->id, "Операция выполнена", false);
     }

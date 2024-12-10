@@ -29,7 +29,7 @@ void onDelayNotificationSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
 
         std::string message = "Уведомление успешно отложено на *" +
         to_string(num_delay) + " " + time_unit + "*. Напомним *" +
-        Utils::manual_format_in_russian(Utils::convertToISO(query->message->chat->id, notification.time, db).value_or(notification.time)) + "*";
+        Utils::formatDateInRussian(Utils::convertToISO(query->message->chat->id, notification.time, db).value_or(notification.time)) + "*";
 
         bot.getApi().sendMessage(query->message->chat->id, message, nullptr, nullptr, nullptr, "Markdown");
     } catch (std::exception &e) {
