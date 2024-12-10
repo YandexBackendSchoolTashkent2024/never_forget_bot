@@ -1,5 +1,4 @@
 #include "utils.hpp"
-#include "../../models/user.hpp"
 
 namespace NeverForgetBot::Utils {
 
@@ -70,7 +69,7 @@ std::string getBotDescription() {
         "Начнем! 🎯";
 }
 
-std::string formatTimeWithTimezone(long telegram_id, const std::string& time, NeverForgetBot::Database& db) {
+std::optional<std::string> formatTimeWithTimezone(long telegram_id, const std::string& time, NeverForgetBot::Database& db) {
     try {
         int timezone = db.getUserTimeZone(telegram_id);
 
@@ -98,6 +97,8 @@ std::string formatTimeWithTimezone(long telegram_id, const std::string& time, Ne
         output << std::put_time(updatedTimeStruct, "%Y-%m-%d %H:%M:%S");
         return output.str();
     } catch (const std::exception& e) {
+        std::cerr << "Error formatting time: " << e.what() << std::endl;
+        return std::nullopt;
         std::cerr << "Ошибка форматирования времени: " << e.what() << std::endl;
         return "Некорректное время";
     }
