@@ -41,7 +41,7 @@ int main() {
         NeverForgetBot::Utils::saveUserIfNotExists(message, bot, db);
     });
 
-    bot.getEvents().onCommand("change_tz",[&bot, &db](TgBot::Message::Ptr message){
+    bot.getEvents().onCommand("change_timezone",[&bot, &db](TgBot::Message::Ptr message){
         NeverForgetBot::Commands::onChangeTzCommand(message, bot);
     });
 

@@ -48,10 +48,10 @@ void startLongPolling(TgBot::Bot& bot) {
 
 std::vector<TgBot::BotCommand::Ptr> getBotCommands() {
     std::unordered_map<std::string, std::string> mp = {
+        { "/change_timezone","изменение часового пояса" },
         { "/upcoming_events", "получить список предстоящих событий" },
         { "/help", "инструкция по использованию бота" },
-        { "/start", "запуск бота" },
-        { "/change_tz","изменить"}
+        { "/start", "запуск бота" }
     };
 
     std::vector<TgBot::BotCommand::Ptr> commands;
@@ -94,9 +94,9 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     }
 
     if (user_id.has_value()) {
-        auto event_id = db.insertEvent(user_id, event_name, event_time, event_type);
+        auto event_id = db.insertEvent(user_id, event_name, adjustEventTime(event_time, user_timezone), event_type);
         if (event_id.has_value()) {
-            db.insertNotification(event_id.value(), notification_time);
+            db.insertNotification(event_id.value(), adjustEventTime(notification_time, user_timezone));
 
             std::string confirmation_message =
             "✅ Событие создано успешно:\n\n*✨ " +

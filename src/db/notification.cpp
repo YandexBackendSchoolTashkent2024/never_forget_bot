@@ -18,7 +18,7 @@ std::vector<std::vector<std::string>> Database::fetchPendingNotifications() {
             JOIN "event" e ON e.id = n.event_id
             JOIN "user" u ON u.id = e.user_id
             WHERE n.sent_time IS NULL AND e.status = 'PENDING'
-            AND n.time <= NOW() + INTERVAL '1 minute'
+            AND n.time <= NOW()
         )";
 
         pqxx::result r = txn.exec(query);

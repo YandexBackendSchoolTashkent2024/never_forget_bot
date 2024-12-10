@@ -1,13 +1,14 @@
-#include "../bot/handlers/events/events.hpp"
 #include "db.hpp"
+#include "../bot/handlers/events/events.hpp"
+
 namespace NeverForgetBot {
 
 std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
     std::vector<Event> events;
 
-        if (!conn || !conn->is_open()) {
-            std::cerr << "Database connection is not open\n";
-        }
+    if (!conn || !conn->is_open()) {
+        std::cerr << "Database connection is not open\n";
+    }
 
     try {
         pqxx::work txn(*conn);
@@ -17,19 +18,20 @@ std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
 
         if (user_result.empty()) {
             std::cerr << "No user found with telegram_id: " << telegram_id << std::endl;
-            throw std::runtime_error("No user");
+            txn.commit();
+            throw std::runtime_error("Пользователь не найден");
         }
 
-            std::string user_id = user_result[0]["id"].as<std::string>();
+        std::string user_id = user_result[0]["id"].as<std::string>();
 
         conn->prepare("get_upcoming_events",
-        "SELECT id, user_id, name, time, status, created_at, updated_at "
-        "FROM event "
-        "WHERE user_id = $1 "
-        "AND status = 'PENDING' "
-        "AND time > NOW() "
-        "ORDER BY time DESC"
-    );
+            "SELECT id, user_id, name, time, status, created_at, updated_at "
+            "FROM event "
+            "WHERE user_id = $1 "
+            "AND status = 'PENDING' "
+            "AND time >= NOW() "
+            "ORDER BY time DESC"
+        );
 
         pqxx::result r = txn.exec_prepared("get_upcoming_events", user_id);
 
@@ -46,9 +48,8 @@ std::vector<Event> Database::getEventsOrderedByTimeDesc(long telegram_id) {
             event.created_at = row["created_at"].as<std::string>();
             event.updated_at = row["updated_at"].as<std::string>();
 
-                events.push_back(event);
-            }
-
+            events.push_back(event);
+        }
     } catch (const std::exception &e) {
         std::cerr << "Select events failed: " << e.what() << std::endl;
     }

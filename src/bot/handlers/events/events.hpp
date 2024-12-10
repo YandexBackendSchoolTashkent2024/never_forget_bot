@@ -1,4 +1,5 @@
 #include "../../utils/utils.hpp"
+#include <string>
 
 namespace NeverForgetBot::Events {
 
