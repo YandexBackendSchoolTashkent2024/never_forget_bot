@@ -49,8 +49,6 @@ public:
 
     std::optional<std::string> getUserIdByTelegramId(long telegram_id);
 
-    std::string format_datetime_in_russian_utf8(const std::string& iso_datetime);
-
 private:
     pqxx::connection* conn;
 };
