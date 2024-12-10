@@ -8,10 +8,14 @@ namespace NeverForgetBot::CallbackHandlers {
         if (callbackData.find("user_timez-") == 0) {
             std::string timeZone = callbackData.substr(11);
             onTimeZoneSelection(timeZone, query, bot, db);
+        } else if (callbackData.find("delay") == 0) {
+            onDelayNotificationSelection(query, bot, db);
+        } else if (callbackData.find("status") == 0) {
+            onEventStatusChangeSelection(query, bot, db);
         } else {
             bot.getApi().sendMessage(query->message->chat->id, "Unknown selection.");
         }
     }
 
-} 
+}
 
