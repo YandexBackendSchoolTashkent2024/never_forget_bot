@@ -19,6 +19,7 @@
 #include "../models/event.hpp"
 #include "../models/user.hpp"
 #include "../models/notification.hpp"
+#include <type_traits>
 
 namespace NeverForgetBot {
 
@@ -52,6 +53,8 @@ public:
     std::optional<std::string> changeEventStatus(const std::string &notification_id, const std::string &action);
 
     std::optional<std::string> getUserIdByTelegramId(long telegram_id);
+
+     void updateEventStatus(const std::string event_id,const std::string status);
 
 private:
     pqxx::connection* conn;

@@ -39,9 +39,9 @@ namespace NeverForgetBot::Commands {
         bot.getApi().sendMessage(
             message->chat->id,
             "Выберите город:",
-            nullptr,
-            nullptr,
-            keyboard,
+            nullptr,  // LinkPreviewOptions
+            nullptr,  // ReplyParameters
+            keyboard,  // Include the keyboard here
             "Markdown"
         );
     }

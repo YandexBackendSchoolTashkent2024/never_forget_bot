@@ -49,7 +49,8 @@ std::vector<TgBot::BotCommand::Ptr> getBotCommands() {
     std::unordered_map<std::string, std::string> mp = {
         { "/upcoming_events", "получить список предстоящих событий" },
         { "/help", "инструкция по использованию бота" },
-        { "/start", "запуск бота" }
+        { "/start", "запуск бота" },
+        { "/change_tz","изменить"}
     };
 
     std::vector<TgBot::BotCommand::Ptr> commands;

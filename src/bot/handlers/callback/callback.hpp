@@ -11,4 +11,6 @@ namespace NeverForgetBot::CallbackHandlers {
 
     void onEventStatusChangeSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, NeverForgetBot::Database &db);
 
+    void onUpcommingEventSelection(const std::string& queryData, TgBot::CallbackQuery::Ptr query, TgBot::Bot& bot, Database& db);
 }
+

@@ -14,7 +14,8 @@ enum class EventType {
 enum class EventStatus {
     PENDING,
     COMPLETED,
-    NOT_COMPLETED
+    NOT_COMPLETED,
+    DELETED
 };
 
 struct Event {
@@ -33,6 +34,8 @@ struct Event {
             this->status = EventStatus::COMPLETED;
         } else if (statusStr == "NOT_COMPLETED") {
             this->status = EventStatus::NOT_COMPLETED;
+        } else if  (statusStr == "DELETED"){
+             this->status = EventStatus::DELETED;
         }
     }
 };
