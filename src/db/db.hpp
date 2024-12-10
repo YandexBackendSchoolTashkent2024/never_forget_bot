@@ -16,6 +16,10 @@
 #include "../models/user.hpp"
 #include "../models/notification.hpp"
 
+#include "../models/event.hpp"
+#include "../models/user.hpp"
+#include "../models/notification.hpp"
+
 namespace NeverForgetBot {
 
 class Database {
