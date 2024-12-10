@@ -25,7 +25,6 @@ void send_events(TgBot::Bot &bot, long chat_id, const std::vector<Event> &events
 
         bot.getApi().sendMessage(chat_id, message, nullptr, nullptr, keyboard, "Markdown");
     }
-
 }
 
 } // namespace NeverForgetBot::Events

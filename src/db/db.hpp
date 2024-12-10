@@ -11,15 +11,12 @@
 #include <sstream>
 #include <locale>
 #include <codecvt>
-
-#include "../models/event.hpp"
-#include "../models/user.hpp"
-#include "../models/notification.hpp"
-
-#include "../models/event.hpp"
-#include "../models/user.hpp"
-#include "../models/notification.hpp"
 #include <type_traits>
+
+#include "../models/event.hpp"
+#include "../models/user.hpp"
+#include "../models/notification.hpp"
+
 
 namespace NeverForgetBot {
 

@@ -1,6 +1,5 @@
 #include "utils.hpp"
-#include <filesystem>
-#include <optional>
+#include <cctype>
 
 namespace NeverForgetBot::Utils {
 
@@ -81,21 +80,10 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     std::string notification_time;
     auto user_id = db.getUserIdByTelegramId(telegram_id);
 
-    std::string msg = "Детали созданного события:";
-    msg += "\nНазвание события: " + event_name;
-    msg += "\nВремя события: " + formatDateInRussian(event_time);
-    if (notifications.empty()) {
-        msg += "\nВремя уведомления: " + formatDateInRussian(event_time); 
-    }
-
-    int user_tz = db.getUserTimeZone(telegram_id);
-    event_time = adjustEventTime(event_time, user_tz);
+    int user_timezone = db.getUserTimeZone(telegram_id);
     if (!notifications.empty()){
         notification_time = notifications[0];
-        msg += "\nВремя уведомления: " + formatDateInRussian(notification_time); 
-        notification_time = adjustEventTime(notification_time, user_tz);
-    }
-    else {
+    } else {
         notification_time = event_time;
     }
 
@@ -105,14 +93,20 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
         event_type = "ONE_TIME";
     }
 
-    std::cout << "Время события: " << event_time << "\nВремя уведомления: " << notification_time << std::endl;
     if (user_id.has_value()) {
         auto event_id = db.insertEvent(user_id, event_name, event_time, event_type);
         if (event_id.has_value()) {
             db.insertNotification(event_id.value(), notification_time);
 
-            bot.getApi().sendMessage(message->chat->id, "Событие успешно добавлено");
-            bot.getApi().sendMessage(message->chat->id, msg);
+            std::string confirmation_message =
+            "✅ Событие создано успешно:\n\n*✨ " +
+            event_name + "*\n" +
+            "⏳ Время: *" +
+            Utils::formatDateInRussian(Utils::convertToISO(telegram_id, event_time, db).value_or(event_time)) +
+            "*\n" + "📨 Уведомим *" +
+            Utils::formatDateInRussian(Utils::convertToISO(telegram_id, notification_time, db).value_or(notification_time)) + "*";
+
+            bot.getApi().sendMessage(telegram_id, confirmation_message, nullptr, nullptr, nullptr, "Markdown");
         }
         else {
             bot.getApi().sendMessage(message->chat->id, "Произошла ошибка. Не удалось сохранить событие");

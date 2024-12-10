@@ -98,11 +98,8 @@ std::optional<std::string> Database::insertEvent(const std::optional<std::string
     try {
         pqxx::work txn(*conn);
 
-        // Convert `user_id` to a SQL-compatible value
         std::string user_id_str = user_id.has_value() ? txn.quote(user_id.value()) : "NULL";
-        std::cout << "Event type being inserted: " << event_type << std::endl;
 
-        // Construct the query
         std::string query = "INSERT INTO event (user_id, name, time, type, status) VALUES ("
                     + user_id_str + ", " 
                     + txn.quote(event_name) + ", "
