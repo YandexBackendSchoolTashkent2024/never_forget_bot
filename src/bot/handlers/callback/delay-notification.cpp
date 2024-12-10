@@ -14,9 +14,22 @@ void onDelayNotificationSelection(TgBot::CallbackQuery::Ptr query, TgBot::Bot& b
 
         bot.getApi().deleteMessage(query->message->chat->id, query->message->messageId);
 
+        std::string time_unit;
+        int num_interval = stoi(interval);
+        int num_delay = num_interval < 60 ? num_interval : num_interval / 60;
+        if (num_interval < 60) {
+            time_unit = "минут";
+        } else if (num_interval == 60) {
+            time_unit = "час";
+        } else if (num_interval == 180) {
+            time_unit = "часа";
+        } else {
+            time_unit = "часов";
+        }
+
         std::string message = "Уведомление успешно отложено на *" +
-        interval.substr(0, interval.length() - 3) + "* минут. Напомним *" +
-        Utils::formatTimeWithTimezone(query->message->chat->id, notification.time, db).value_or(notification.time) + "*";
+        to_string(num_delay) + " " + time_unit + "*. Напомним *" +
+        Utils::manual_format_in_russian(Utils::convertToISO(query->message->chat->id, notification.time, db).value_or(notification.time)) + "*";
 
         bot.getApi().sendMessage(query->message->chat->id, message, nullptr, nullptr, nullptr, "Markdown");
     } catch (std::exception &e) {
