@@ -7,6 +7,10 @@
 #include "../models/event.hpp"
 #include <tgbot/Bot.h>
 #include <type_traits>
+#include <iomanip>
+#include <sstream>
+#include <locale>
+#include <codecvt>
 
 namespace NeverForgetBot {
 
@@ -36,6 +40,9 @@ public:
     std::optional<std::string> deleteEvent(long telegram_id, const std::optional<std::string>& username, const std::optional<std::string>& name);
 
     std::optional<std::string> getUserIdByTelegramId(long telegram_id);
+
+    std::string format_datetime_in_russian_utf8(const std::string& iso_datetime);
+
 private:
     pqxx::connection* conn;
 };

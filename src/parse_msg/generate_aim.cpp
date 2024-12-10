@@ -7,24 +7,27 @@
 #include "picojson.h"
 #include "common.h"
 
+// Функция для извлечения токена IAM из JSON-ответа
 std::string extractIamToken(const std::string& response) {
     picojson::value v;
     std::string err = picojson::parse(v, response);
     if (!err.empty()) {
-        std::cerr << "Failed to parse JSON: " << err << std::endl;
+        std::cerr << "Не удалось разобрать JSON: " << err << std::endl;
         return "";
     }
     auto iamToken = v.get("iamToken").to_str();
     return iamToken;
 }
 
+// Функция для генерации AIM токена
 std::string generateAIMToken() {
     const char* privateKey = std::getenv("PRIVATE_KEY");
     const char* serviceAccountId = std::getenv("SERVICE_ACCOUNT_ID");
     const char* keyId = std::getenv("ID");
 
+    // Проверка наличия необходимых переменных окружения
     if (!privateKey || !serviceAccountId || !keyId) {
-        std::cerr << "Missing one of the required environment variables: PRIVATE_KEY, SERVICE_ACCOUNT_ID, or ID.\n";
+        std::cerr << "Отсутствует одна из обязательных переменных окружения: PRIVATE_KEY, SERVICE_ACCOUNT_ID или ID.\n";
         return "";
     }
 
@@ -35,6 +38,7 @@ std::string generateAIMToken() {
 
     auto algorithm = jwt::algorithm::ps256("", privateKey);
 
+    // Создание JWT токена
     auto encoded_token = jwt::create()
         .set_key_id(keyId)
         .set_issuer(serviceAccountId)
@@ -69,14 +73,14 @@ std::string generateAIMToken() {
         res = curl_easy_perform(curl);
 
         if (res != CURLE_OK) {
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+            std::cerr << "curl_easy_perform() не удалось выполнить: " << curl_easy_strerror(res) << std::endl;
         }
 
         curl_slist_free_all(headers);
 
         curl_easy_cleanup(curl);
     } else {
-        std::cerr << "CURL initialization failed!" << std::endl;
+        std::cerr << "Инициализация CURL не удалась!" << std::endl;
     }
 
     curl_global_cleanup();

@@ -13,11 +13,11 @@ Checker::Checker(const std::unordered_map<std::string, std::string> &input,
     if (nameEventIt != input.end() && !nameEventIt->second.empty()) {
         nameEvent = nameEventIt->second;
         if (nameEvent == "null") {
-            throw std::invalid_argument("Please provide event name");
+            throw std::invalid_argument("Пожалуйста, укажите название события");
 
         }
     } else {
-        throw std::invalid_argument("Missing or empty field: name_event");
+        throw std::invalid_argument("Отсутствует или пустое поле: name_event");
     }
 
     auto timeIt = input.find("time");
@@ -25,9 +25,10 @@ Checker::Checker(const std::unordered_map<std::string, std::string> &input,
         time = timeIt->second;
         if (!validateTimestamp(time)) {
             if (time=="null") {
-                throw std::invalid_argument("Please provide event time");
+                throw std::invalid_argument("Пожалуйста, укажите время события");
             }
-            throw std::invalid_argument("Invalid timestamp format: " + time);
+            std::cout<<time<<std::endl;
+            throw std::invalid_argument("Недопустимый формат временной метки: " + time);
         }
     } else {
         time = "";
@@ -48,7 +49,7 @@ Checker::Checker(const std::unordered_map<std::string, std::string> &input,
     for (const auto &notif : notifications) {
         std::cout << "Validating notification: " << notif << std::endl;
         if (!validateTimestamp(notif)) {
-            throw std::invalid_argument("Invalid notification timestamp: " + notif);
+            throw std::invalid_argument("Недопустимая временная метка уведомления: " + notif);
         }
     }
 }
@@ -79,7 +80,7 @@ Checker::EventType Checker::stringToEventType(const std::string &typeStr) const 
     } else if (typeStr == "ONE_TIME") {
         return EventType::ONE_TIME;
     } else {
-        throw std::invalid_argument("Invalid event type: " + typeStr);
+        throw std::invalid_argument("Недопустимый тип события: " + typeStr);
     }
 }
 

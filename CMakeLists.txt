@@ -41,7 +41,6 @@ add_executable(NeverForgetBot
     src/parse_msg/generate_aim.cpp
     src/parse_msg/parse_request.cpp
     src/parse_msg/checker.cpp
-    src/parse_msg/env_parser.cpp
     src/bot/handlers/notifications/notifications.cpp
     src/bot/handlers/events/events.cpp
 )

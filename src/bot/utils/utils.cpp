@@ -80,26 +80,26 @@ std::string formatTimeWithTimezone(long telegram_id, const std::string& time, Ne
         std::istringstream ss(timestamp);
         ss >> std::get_time(&timeStruct, "%Y-%m-%d %H:%M:%S");
         if (ss.fail()) {
-            throw std::runtime_error("Failed to parse timestamp");
+            throw std::runtime_error("Ошибка при разборе временной метки");
         }
 
         time_t timeEpoch = std::mktime(&timeStruct);
         if (timeEpoch == -1) {
-            throw std::runtime_error("Failed to convert to time_t");
+            throw std::runtime_error("Ошибка преобразования времени в time_t");
         }
         timeEpoch += timezone * 3600;
 
         std::tm* updatedTimeStruct = std::gmtime(&timeEpoch);
         if (!updatedTimeStruct) {
-            throw std::runtime_error("Failed to convert back to tm struct");
+            throw std::runtime_error("Ошибка преобразования времени в структуру tm");
         }
 
         std::ostringstream output;
         output << std::put_time(updatedTimeStruct, "%Y-%m-%d %H:%M:%S");
         return output.str();
     } catch (const std::exception& e) {
-        std::cerr << "Error formatting time: " << e.what() << std::endl;
-        return "Invalid time";
+        std::cerr << "Ошибка форматирования времени: " << e.what() << std::endl;
+        return "Некорректное время";
     }
 }
 
@@ -111,10 +111,19 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     vector<std::string> notifications = event.getNotifications();
     std::string notification_time;
     auto user_id = db.getUserIdByTelegramId(telegram_id);
+
+    std::string msg = "Детали созданного события:";
+    msg += "\nНазвание события: " + event_name;
+    msg += "\nВремя события: " + manual_format_in_russian(event_time);
+    if (notifications.empty()) {
+        msg += "\nВремя уведомления: " + manual_format_in_russian(event_time); 
+    }
+
     int user_tz = db.getUserTimeZone(telegram_id);
     event_time = adjustEventTime(event_time, user_tz);
     if (!notifications.empty()){
         notification_time = notifications[0];
+        msg += "\nВремя уведомления: " + manual_format_in_russian(notification_time); 
         notification_time = adjustEventTime(notification_time, user_tz);
     }
     else {
@@ -126,25 +135,22 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     } catch (const std::invalid_argument &e) {
         event_type = "ONE_TIME";
     }
-
-    
-
-    
-
-    std::cout<<"Event time: "<<event_time<<"\nNotification time: "<<notification_time<<endl;
+    std::cout << "Время события: " << event_time << "\nВремя уведомления: " << notification_time << std::endl;
     if (user_id.has_value()) {
         auto event_id = db.insertEvent(user_id, event_name, event_time, event_type);
         if (event_id.has_value()) {
             db.insertNotification(event_id.value(), notification_time);
 
-            bot.getApi().sendMessage(message->chat->id, "Event has been added successfully");
+            bot.getApi().sendMessage(message->chat->id, "Событие успешно добавлено");
+            bot.getApi().sendMessage(message->chat->id, msg);
+            
         }
         else {
-            bot.getApi().sendMessage(message->chat->id, "Something went wrong. Could not save event");
+            bot.getApi().sendMessage(message->chat->id, "Произошла ошибка. Не удалось сохранить событие");
         }
         
     } else {
-        bot.getApi().sendMessage(message->chat->id, "Failed to get user id");
+        bot.getApi().sendMessage(message->chat->id, "Не удалось получить идентификатор пользователя");
     }
 }
 
@@ -153,19 +159,19 @@ std::string adjustEventTime(const std::string& event_time, int user_timezone) {
     std::istringstream ss(event_time);
     ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
     if (ss.fail()) {
-        throw std::runtime_error("Failed to parse event time: " + event_time);
+        throw std::runtime_error("Ошибка разбора времени события: " + event_time);
     }
 
     std::time_t utc_time = std::mktime(&tm);
     if (utc_time == -1) {
-        throw std::runtime_error("Failed to convert time to UTC");
+        throw std::runtime_error("Ошибка преобразования времени в UTC");
     }
 
     utc_time -= user_timezone * 3600;
 
     std::tm* adjusted_tm = std::gmtime(&utc_time);
     if (!adjusted_tm) {
-        throw std::runtime_error("Failed to convert adjusted time to std::tm");
+        throw std::runtime_error("Ошибка преобразования времени в структуру std::tm");
     }
 
     std::ostringstream adjusted_time_ss;
@@ -173,4 +179,29 @@ std::string adjustEventTime(const std::string& event_time, int user_timezone) {
     return adjusted_time_ss.str();
 }
 
+std::string manual_format_in_russian(const std::string& iso_datetime) {
+    const std::vector<std::string> russian_months = {
+        "января", "февраля", "марта", "апреля", "мая", "июня",
+        "июля", "августа", "сентября", "октября", "ноября", "декабря"
+    };
+
+    try {
+        std::tm tm = {};
+        std::istringstream ss(iso_datetime);
+        ss >> std::get_time(&tm, "%Y-%m-%dT%H:%M:%SZ");
+
+        if (ss.fail()) {
+            throw std::invalid_argument("Ошибка разбора даты/времени!");
+        }
+
+        std::ostringstream oss;
+        oss << tm.tm_mday << " " << russian_months[tm.tm_mon] << " " << (1900 + tm.tm_year) << " г., ";
+        oss << std::setw(2) << std::setfill('0') << tm.tm_hour << ":"
+            << std::setw(2) << std::setfill('0') << tm.tm_min;
+
+        return oss.str();
+    } catch (const std::exception& e) {
+        return "Ошибка обработки даты";
+    }
+}
 }
