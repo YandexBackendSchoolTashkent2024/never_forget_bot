@@ -2,7 +2,6 @@
 #include "../../db/db.hpp"
 #include "./messages/messages.hpp"
 #include "../handlers/events/events.hpp"
-#include <tgbot/tgbot.h>
 
 namespace NeverForgetBot::Commands {
 
@@ -13,4 +12,5 @@ namespace NeverForgetBot::Commands {
     void onChangeTzCommand(TgBot::Message::Ptr message, TgBot::Bot &bot);
 
     void onUpcomingEventsCommand(TgBot::Message::Ptr message, TgBot::Bot& bot , Database &db);
+
 }
