@@ -1,22 +1,23 @@
-// periodic_task.hpp
-#ifndef PERIODIC_TASK_HPP
-#define PERIODIC_TASK_HPP
-
-#include <atomic>
-
-#include "../db/db.hpp"  // Include the header for the Database class
+#pragma once
 
 #include <tgbot/tgbot.h>
+#include <atomic>
+#include <ctime>
+#include <thread>
+#include <chrono>
+
+#include "../db/db.hpp"
+#include "../bot/handlers/notifications/notifications.hpp"
+
 
 namespace chrono_task {
 
-extern std::atomic<bool> keep_running; // Flag to control the background thread
+extern std::atomic<bool> keep_running;
 
-// Function declarations
-void periodic_task(NeverForgetBot::Database& db, TgBot::Bot& bot);  // Accept the Database object as a parameter
-void start_periodic_task(NeverForgetBot::Database& db, TgBot::Bot& bot);  // Pass Database to the start function
+void periodic_task(NeverForgetBot::Database& db, TgBot::Bot& bot);
+
+void start_periodic_task(NeverForgetBot::Database& db, TgBot::Bot& bot);
+
 void stop_periodic_task();
 
 } // namespace chrono_task
-
-#endif // PERIODIC_TASK_HPP

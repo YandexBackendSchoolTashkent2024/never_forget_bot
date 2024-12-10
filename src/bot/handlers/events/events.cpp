@@ -1,5 +1,5 @@
 #include "events.hpp"
-#include <tgbot/Bot.h>
+#include <string>
 
 namespace NeverForgetBot::Events {
 
@@ -22,71 +22,74 @@ namespace NeverForgetBot::Events {
         }
 
         std::string confirmation_message =
-            "Событие создано успешно:\n\n**" +
-            event.name + "**\n" +
+            "Событие создано успешно:\n\n*" +
+            event.name + "*\n" +
             "Время: " + event.time + "\n" +
             "Статус: " + status_str;
 
-        bot.getApi().sendMessage(chat_id, confirmation_message);
+        bot.getApi().sendMessage(chat_id, confirmation_message, nullptr, nullptr, nullptr, "Markdown");
     }
 
-   void send_events(TgBot::Bot& bot, long chat_id, const std::vector<Event>& events) {
-    if (events.empty()) {
-        bot.getApi().sendMessage(chat_id, "Нет предстоящих событий. Самое время создать новое 🙂.");
-        return;
-    }
-
-    for (const auto& event : events) {
-        std::string status_str;
-
-        switch (event.status) {
-            case EventStatus::PENDING:
-                status_str = "в процессе исполнения";
-                break;
-            case EventStatus::COMPLETED:
-                status_str = "завершено";
-                break;
-            case EventStatus::NOT_COMPLETED:
-                status_str = "не завершено";
-                break;
-            case EventStatus::DELETED:
-                status_str = "удаленно";
-                break;    
+    void send_events(TgBot::Bot& bot, long chat_id, const std::vector<Event>& events,Database &db) {
+        if (events.empty()) {
+            bot.getApi().sendMessage(chat_id, "Нет предстоящих событий. Самое время создать новое 🙂.");
+            return;
         }
 
-        std::string message =
-            "**" + event.name + "**\n" +
-            "Время: " + event.time + "\n" +
-            "Статус: " + status_str + "\n\n";
+        std::string message = "Предстоящие события:\n\n";
 
-        // Create inline keyboard
-        TgBot::InlineKeyboardMarkup::Ptr keyboard(new TgBot::InlineKeyboardMarkup);
+        for (const auto& event : events) {
+            std::string status_str;
 
-        // "Done" button
-        TgBot::InlineKeyboardButton::Ptr doneButton(new TgBot::InlineKeyboardButton);
-        doneButton->text = "✅ Done";
-        doneButton->callbackData = "upcomming-eventdone-" + event.id;
+            switch (event.status) {
+                case EventStatus::PENDING:
+                    status_str = "в процессе исполнения";
+                    break;
+                case EventStatus::COMPLETED:
+                    status_str = "завершено";
+                    break;
+                case EventStatus::NOT_COMPLETED:
+                    status_str = "не завершено";
+                    break;
+                case EventStatus::DELETED:
+                    status_str = "удалено";
+                    break;
+            }
 
-        // "Delete" button
-        TgBot::InlineKeyboardButton::Ptr deleteButton(new TgBot::InlineKeyboardButton);
-        deleteButton->text = "❌ Delete";
-        deleteButton->callbackData = "delete-" + event.id;
+            message +=
+                "*" + event.name + "*\n" +
+                "Дата события: " + Utils::formatTimeWithTimezone(chat_id, event.time, db).value_or(event.time) + "\n" +
+                "Статус: " + status_str + "\n\n";
 
-        // Add buttons to a row
-        std::vector<TgBot::InlineKeyboardButton::Ptr> row = {doneButton, deleteButton};
-        keyboard->inlineKeyboard.push_back(row);
+            
+            TgBot::InlineKeyboardMarkup::Ptr keyboard(new TgBot::InlineKeyboardMarkup);
 
-        // Send message with inline keyboard
-       bot.getApi().sendMessage(
-            chat_id,
-            message,
-            nullptr,  // LinkPreviewOptions
-            nullptr,  // ReplyParameters
-            keyboard,  // Include the keyboard here
-            "Markdown"
-        );
-    }
+        
+            TgBot::InlineKeyboardButton::Ptr doneButton(new TgBot::InlineKeyboardButton);
+            doneButton->text = "✅ Done";
+            doneButton->callbackData = "upcomming-event-done-" + event.id;
+
+
+            TgBot::InlineKeyboardButton::Ptr deleteButton(new TgBot::InlineKeyboardButton);
+            deleteButton->text = "❌ Delete";
+            deleteButton->callbackData = "upcomming-event-delete-" + event.id;
+
+    
+            std::vector<TgBot::InlineKeyboardButton::Ptr> row = {doneButton, deleteButton};
+            keyboard->inlineKeyboard.push_back(row);
+
+            // Send message with inline keyboard
+            bot.getApi().sendMessage(
+                chat_id,
+                message,
+                nullptr,  
+                nullptr,    
+                keyboard,  
+                "Markdown"
+            );
+        }
 }
+
 
 
 } // namespace NeverForgetBot::Events

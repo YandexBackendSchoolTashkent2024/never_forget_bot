@@ -27,12 +27,15 @@ add_executable(NeverForgetBot
     src/db/db.cpp
     src/db/users.cpp
     src/db/event.cpp
+    src/db/notification.cpp
     src/bot/commands/start.cpp
     src/bot/commands/help.cpp
     src/bot/commands/change_tz.cpp
-    src/bot/commands/upcomming-events.cpp
+    src/bot/commands/upcoming-events.cpp
     src/bot/handlers/callback/callback.cpp
     src/bot/handlers/callback/time-zone.cpp
+    src/bot/handlers/callback/delay-notification.cpp
+    src/bot/handlers/callback/change-event-status.cpp
     src/bot/handlers/callback/upcomming-event.cpp
     src/bot/utils/utils.cpp
     src/chrono/periodic_task.cpp
@@ -40,7 +43,6 @@ add_executable(NeverForgetBot
     src/parse_msg/generate_aim.cpp
     src/parse_msg/parse_request.cpp
     src/parse_msg/checker.cpp
-    src/parse_msg/env_parser.cpp
     src/bot/handlers/notifications/notifications.cpp
     src/bot/handlers/events/events.cpp
 )

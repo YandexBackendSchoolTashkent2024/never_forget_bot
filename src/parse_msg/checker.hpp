@@ -13,7 +13,6 @@ public:
         ONE_TIME
     };
 
-    // Updated constructor to accept unordered_map and vector
     Checker(const std::unordered_map<std::string, std::string> &input,
             const std::vector<std::string> &notifications);
 

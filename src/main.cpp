@@ -4,7 +4,9 @@
 #include "db/db.hpp"
 #include "bot/utils/utils.hpp"
 #include "bot/commands/commands.hpp"
+#include "bot/commands/commands.hpp"
 #include "bot/handlers/notifications/notifications.hpp"
+#include "bot/handlers/callback/callback.hpp"
 #include "bot/handlers/callback/callback.hpp"
 #include "chrono/periodic_task.hpp"
 #include "parse_msg/checker.hpp"
@@ -21,7 +23,7 @@ int main() {
     const char* dbPassword = std::getenv("POSTGRES_PASSWORD");
 
     if (!botToken || !dbHost || !dbPort || !dbName || !dbUser || !dbPassword) {
-        std::cerr << "Missing environment variables. Please check your .env file.\n";
+        std::cerr << "Отсутствуют переменные окружения. Пожалуйста, проверьте ваш .env файл.\n";
         return 1;
     }
 
@@ -32,11 +34,9 @@ int main() {
                                 " password=" + std::string(dbPassword);
 
     NeverForgetBot::Database db(connectionStr);
-    
+
     TgBot::Bot bot(botToken);
 
-
-    // here crono job starting 
     chrono_task::start_periodic_task(db, bot);
 
     bot.getEvents().onCommand("start", [&bot, &db](TgBot::Message::Ptr message) {
@@ -51,51 +51,33 @@ int main() {
     bot.getEvents().onCommand("help", [&bot](TgBot::Message::Ptr message) {
         NeverForgetBot::Commands::onHelpCommand(message, bot);
     });
-    
+
     bot.getEvents().onCommand("upcoming_events", [&bot, &db](TgBot::Message::Ptr message) {
-        NeverForgetBot::Commands::onUpcommingEventsCommand(message, bot,db);
+        NeverForgetBot::Commands::onUpcomingEventsCommand(message, bot,db);
     });
 
     bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
-        bot.getApi().sendMessage(message->chat->id, "Invalid command");
+        bot.getApi().sendMessage(message->chat->id, "Неверная команда");
     });
 
     bot.getEvents().onCallbackQuery([&bot,&db](TgBot::CallbackQuery::Ptr query) {
         NeverForgetBot::CallbackHandlers::onCallbackQuery(query, bot,db);
     });
 
-    bot.getEvents().onNonCommandMessage([&bot](TgBot::Message::Ptr message) {
+    bot.getEvents().onNonCommandMessage([&bot, &db](TgBot::Message::Ptr message) {
         std::string message_text;
         try {
             Checker checker = processMessage(message->text);
 
-            message_text += "Event Name: " + checker.getNameEvent() + "\n";
-            message_text += "Event Time: " + checker.getTime() + "\n";
-            message_text += std::string("Event Type: ") +
-                            (checker.getType() == Checker::EventType::ONE_TIME ? "one-time" : "while-not-done") + "\n";
+            NeverForgetBot::Utils::saveEvent(message, bot, db, checker);
 
-            const auto& notifications = checker.getNotifications();
-            if (!notifications.empty()) {
-                message_text += "Notifications: ";
-                for (const auto& n : notifications) {
-                    message_text += n + " ";
-                }
-                message_text += "\n";
-            } else {
-                message_text += "Notifications: null\n";
-            }
         } catch (const std::exception& e) {
-            message_text = "Error processing your message: " + std::string(e.what());
-        }
-        if (!message_text.empty()) {
+            message_text = "Ошибка обработки вашего сообщения: " + std::string(e.what());
             bot.getApi().sendMessage(message->chat->id, message_text);
-        } else {
-            bot.getApi().sendMessage(message->chat->id, "I couldn't understand your message. Please try again.");
         }
     });
 
     NeverForgetBot::Utils::startLongPolling(bot);
-    // here crono job ending
 
     chrono_task::stop_periodic_task();
     return 0;
