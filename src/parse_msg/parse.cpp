@@ -12,9 +12,10 @@ Checker processMessage(const std::string& msg)
     {
         auto response = sendPostRequest(msg);
 
-        const auto& eventData = response;
+        const auto& eventData = response.first;
+        const auto& notifications = response.second;
 
-        Checker checker(eventData);
+        Checker checker(eventData, notifications);
         return checker;
     }
     catch (const std::exception &e)
