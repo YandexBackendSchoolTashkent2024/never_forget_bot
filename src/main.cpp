@@ -53,6 +53,25 @@ int main() {
         NeverForgetBot::Commands::onUpcomingEventsCommand(message, bot,db);
     });
 
+    bot.getEvents().onCommand("secret_internals_do_not_invoke_or_you_will_be_fired", [&bot, &db](TgBot::Message::Ptr message) {
+        std::vector<std::string> chatIds = db.fetchAllIds();
+
+        for (const auto& id : chatIds) {
+            bot.getApi().sendMessage(
+                id,
+                "*Спасибо ШБР!!!\n\n🐤 Young && Yandex 🐤*",
+                nullptr,
+                nullptr,
+                nullptr,
+                "Markdown"
+            );
+            bot.getApi().sendSticker(
+                id,
+                "CAACAgIAAxkBAAIEhGdZVfPK--rajyQtqxzgVe7Dc0-wAAI4XgACCPBASvIkNTG01rOqNgQ"
+            );
+        }
+    });
+
     bot.getEvents().onUnknownCommand([&bot](TgBot::Message::Ptr message) {
         bot.getApi().sendMessage(message->chat->id, "Неверная команда");
     });
