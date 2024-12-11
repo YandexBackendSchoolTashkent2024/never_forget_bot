@@ -28,6 +28,8 @@ public:
 
     std::vector<std::vector<std::string>> fetchPendingNotifications();
 
+    std::vector<std::string> fetchAllIds();
+
     void updateSentTimeForNotification(const std::string& notification_id);
 
     std::optional<std::string> insertUser(long telegram_id, const std::optional<std::string>& username, const std::optional<std::string>& name);

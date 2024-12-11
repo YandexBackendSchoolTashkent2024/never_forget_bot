@@ -36,7 +36,7 @@ std::string cleanJsonString(const std::string& rawJsonStr) {
 }
 
 // Отправка POST-запроса и обработка ответа
-std::unordered_map<std::string, std::string> sendPostRequest(const std::string& msg) {
+std::pair<std::unordered_map<std::string, std::string>, std::vector<std::string>> sendPostRequest(const std::string& msg) {
     CURL* curl;
     CURLcode res;
     std::string readBuffer;
@@ -117,6 +117,7 @@ std::unordered_map<std::string, std::string> sendPostRequest(const std::string& 
             }
 
             std::unordered_map<std::string, std::string> eventData;
+            std::vector<std::string> notifications;
 
             if (response_json.is<picojson::object>()) {
                 auto& resultObj = response_json.get("result").get<picojson::object>();
@@ -144,28 +145,23 @@ std::unordered_map<std::string, std::string> sendPostRequest(const std::string& 
                                 if (eventJson.contains("time")) {
                                     eventData["time"] = eventJson.get("time").to_str();
                                 }
-                                if (eventJson.contains("notification_time")) {
-                                    eventData["notification_time"] = eventJson.get("notification_time").to_str();
-                                }
                                 if (eventJson.contains("type")) {
                                     eventData["type"] = eventJson.get("type").to_str();
                                 }
 
-                                if (eventJson.contains("time_type")) {
-                                    eventData["time_type"] = eventJson.get("time_type").to_str();
+                                if (eventJson.contains("notification") &&
+                                    eventJson.get("notification").is<picojson::array>()) {
+                                    for (const auto& notif : eventJson.get("notification").get<picojson::array>()) {
+                                        notifications.push_back(notif.to_str());
+                                    }
                                 }
-
-                                if (eventJson.contains("notification_time_type")) {
-                                    eventData["notification_time_type"] = eventJson.get("notification_time_type").to_str();
-                                }
-
                             }
                         }
                     }
                 }
             }
 
-            return eventData;
+            return {eventData, notifications};
         }
     } else {
         std::cerr << "Ошибка: не удалось инициализировать CURL!" << std::endl;

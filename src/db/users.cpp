@@ -115,4 +115,39 @@ std::optional<std::string> Database::getUserIdByTelegramId(long telegram_id) {
     }
 }
 
+std::vector<std::string> Database::fetchAllIds() {
+    std::vector<std::string> chatIds;
+
+    if (!conn || !conn->is_open()) {
+        std::cerr << "Database connection is not open\n";
+        return chatIds;
+    }
+
+    try {
+        pqxx::work txn(*conn);
+        std::string query = R"(
+            SELECT telegram_id
+            FROM "user"
+        )";
+
+        pqxx::result r = txn.exec(query);
+
+        if (r.empty()) {
+            std::cout << "No users found\n";
+            std::runtime_error("No users found\n");
+        }
+
+        for (const auto& row : r) {
+            std::string chatId = row[0].as<std::string>();
+            chatIds.push_back(chatId);
+        }
+
+        txn.commit();
+    } catch (const std::exception &e) {
+        std::cerr << "Fetch telegram ids failed: " << e.what() << std::endl;
+    }
+
+    return chatIds;
+}
+
 }

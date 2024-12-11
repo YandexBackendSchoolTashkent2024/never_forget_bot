@@ -3,7 +3,10 @@
 #include <iostream>
 #include <stdexcept>
 
-Checker::Checker(const std::unordered_map<std::string, std::string> &input) {
+Checker::Checker(const std::unordered_map<std::string, std::string> &input,
+                 const std::vector<std::string> &notifications)
+    : notifications(notifications)
+{
     std::cout << "Checker Constructor Called" << std::endl;
 
     auto nameEventIt = input.find("name_event");
@@ -22,7 +25,6 @@ Checker::Checker(const std::unordered_map<std::string, std::string> &input) {
         time = timeIt->second;
         if (!validateTimestamp(time)) {
             if (time=="null") {
-                // std::cerr<<timeIt<<std::endl;
                 throw std::invalid_argument("Пожалуйста, укажите время события");
             }
             std::cout<<time<<std::endl;
@@ -32,50 +34,24 @@ Checker::Checker(const std::unordered_map<std::string, std::string> &input) {
         time = "";
     }
 
-    auto notificationTimeIt = input.find("time");
-    if (notificationTimeIt != input.end() && !notificationTimeIt->second.empty()) {
-        notification_time = notificationTimeIt->second;
-        if (!validateTimestamp(notification_time)) {
-            if (notification_time=="null") {
-                throw std::invalid_argument("Пожалуйста, укажите время уведомления");
-            }
-            std::cout<<notification_time<<std::endl;
-            throw std::invalid_argument("Недопустимый формат временной метки: " + notification_time);
-        }
-    } else {
-        notification_time = "";
-    }
-
-    auto timeTypeIt = input.find("time_type");
-    if (timeTypeIt != input.end() && !timeTypeIt->second.empty()) {
-        time_type = timeTypeIt->second;
-        if (time_type != "RELATIVE") {
-            time_type = "ABSOLUTE";
-        }
-    } else {
-        time_type = "ABSOLUTE";
-    }    
-
-    auto notificationTimeTypeIt = input.find("notification_time_type");
-    if (notificationTimeTypeIt != input.end() && !notificationTimeTypeIt->second.empty()) {
-        notification_time_type = notificationTimeTypeIt->second;
-        if (notification_time_type != "RELATIVE") {
-            notification_time_type = "ABSOLUTE";
-        }
-    } else {
-        notification_time_type = "ABSOLUTE";
-    }    
-
     auto typeIt = input.find("type");
     if (typeIt != input.end() && !typeIt->second.empty()) {
-        type = typeIt->second;
-        if (type != "WHILE_NOT_DONE") {
-            type = "ONE_TIME";
+        try {
+            type = stringToEventType(typeIt->second);
+        } catch (const std::invalid_argument &e) {
+            type = EventType::ONE_TIME; // Default to ONE_TIME if invalid
         }
     } else {
-        type = "ONE_TIME";
+        type = EventType::ONE_TIME; // Default to ONE_TIME if missing
     }
 
+    std::cout << "Processing notifications..." << std::endl;
+    for (const auto &notif : notifications) {
+        std::cout << "Validating notification: " << notif << std::endl;
+        if (!validateTimestamp(notif)) {
+            throw std::invalid_argument("Недопустимая временная метка уведомления: " + notif);
+        }
+    }
 }
 
 bool Checker::isValid() const {
@@ -90,20 +66,22 @@ std::string Checker::getTime() const {
     return time;
 }
 
-std::string Checker::getTimeType() const {
-    return time_type;
-}
-
-std::string Checker::getType() const {
+Checker::EventType Checker::getType() const {
     return type;
 }
 
-std::string Checker::getNotificationTime() const {
-    return notification_time;
+std::vector<std::string> Checker::getNotifications() const {
+    return notifications;
 }
 
-std::string Checker::getNotificationTimeType() const {
-    return notification_time_type;
+Checker::EventType Checker::stringToEventType(const std::string &typeStr) const {
+    if (typeStr == "WHILE_NOT_DONE") {
+        return EventType::WHILE_NOT_DONE;
+    } else if (typeStr == "ONE_TIME") {
+        return EventType::ONE_TIME;
+    } else {
+        throw std::invalid_argument("Недопустимый тип события: " + typeStr);
+    }
 }
 
 bool Checker::validateTimestamp(const std::string &timestamp) const {
