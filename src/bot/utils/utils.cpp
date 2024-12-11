@@ -106,43 +106,49 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     long telegram_id = message->from->id;
     std::string event_name = event.getNameEvent();
     std::string event_time = event.getTime();
-    std::string event_type;
-    vector<std::string> notifications = event.getNotifications();
-    std::string notification_time;
+    std::string event_time_type = event.getTimeType();
+    std::string event_type = event.getType();
+    std::string notification_time = event.getNotificationTime();
+    std::string notification_time_type = event.getNotificationTimeType();
+
     auto user_id = db.getUserIdByTelegramId(telegram_id);
-
-    std::string msg = "Детали созданного события:";
-    msg += "\nНазвание события: " + event_name;
-    msg += "\nВремя события: " + manual_format_in_russian(event_time);
-    if (notifications.empty()) {
-        msg += "\nВремя уведомления: " + manual_format_in_russian(event_time); 
-    }
-
     int user_tz = db.getUserTimeZone(telegram_id);
-    event_time = adjustEventTime(event_time, user_tz);
-    if (!notifications.empty()){
-        notification_time = notifications[0];
-        msg += "\nВремя уведомления: " + manual_format_in_russian(notification_time); 
+
+    std::string event_time_with_tz;
+    std::string notification_time_with_tz;
+    std::cout<<event_time_type<<std::endl;
+    if (event_time_type == "ABSOLUTE") {
+        event_time_with_tz = event_time;
+        event_time = adjustEventTime(event_time, user_tz);
+    }
+    else {
+        event_time_with_tz = adjustEventTime(event_time, -user_tz);
+    }
+    std::cout<<notification_time_type<<std::endl;
+    
+    if (notification_time_type == "ABSOLUTE") {
+        notification_time_with_tz = notification_time;
         notification_time = adjustEventTime(notification_time, user_tz);
     }
     else {
-        notification_time = event_time;
+        notification_time_with_tz = adjustEventTime(notification_time, -user_tz);
     }
-    
-    try {
-        event_type = event.getType() == Checker::EventType::WHILE_NOT_DONE ? "WHILE_NOT_DONE" : "ONE_TIME";
-    } catch (const std::invalid_argument &e) {
-        event_type = "ONE_TIME";
-    }
+
+    std::string msg = "";
+    msg += "Детали созданного события:";
+    msg += "\nНазвание события: " + event_name;
+    msg += "\nВремя события: " + manual_format_in_russian(event_time_with_tz);
+    msg += "\nВремя уведомления: " + manual_format_in_russian(notification_time_with_tz);
+
     std::cout << "Время события: " << event_time << "\nВремя уведомления: " << notification_time << std::endl;
+
     if (user_id.has_value()) {
         auto event_id = db.insertEvent(user_id, event_name, event_time, event_type);
         if (event_id.has_value()) {
             db.insertNotification(event_id.value(), notification_time);
 
             bot.getApi().sendMessage(message->chat->id, "Событие успешно добавлено");
-            bot.getApi().sendMessage(message->chat->id, msg);
-            
+            bot.getApi().sendMessage(message->chat->id, msg);            
         }
         else {
             bot.getApi().sendMessage(message->chat->id, "Произошла ошибка. Не удалось сохранить событие");

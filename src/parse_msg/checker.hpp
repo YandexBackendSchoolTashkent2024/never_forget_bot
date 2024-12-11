@@ -7,27 +7,22 @@
 class Checker
 {
 public:
-    enum EventType
-    {
-        WHILE_NOT_DONE,
-        ONE_TIME
-    };
-
-    Checker(const std::unordered_map<std::string, std::string> &input,
-            const std::vector<std::string> &notifications);
+    Checker(const std::unordered_map<std::string, std::string> &input);
 
     bool isValid() const;
     std::string getNameEvent() const;
     std::string getTime() const;
-    EventType getType() const;
-    std::vector<std::string> getNotifications() const;
+    std::string getTimeType() const;
+    std::string getNotificationTimeType() const;
+    std::string getType() const;
+    std::string getNotificationTime() const;
 
 private:
     std::string nameEvent;
     std::string time;
-    EventType type;
-    std::vector<std::string> notifications;
-
-    EventType stringToEventType(const std::string &typeStr) const;
+    std::string time_type;
+    std::string notification_time_type;
+    std::string type;
+    std::string notification_time;
     bool validateTimestamp(const std::string &timestamp) const;
 };
