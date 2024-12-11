@@ -11,8 +11,8 @@ void periodic_task(NeverForgetBot::Database& db, TgBot::Bot& bot) {
         auto notifications = db.fetchPendingNotifications();
 
         for (const auto& n : notifications) {
-            const auto& [notification_id, telegram_id, event_name, event_time, notification_time] = std::tie(
-                n[0], n[1], n[2], n[3], n[4]
+            const auto& [notification_id, event_id, telegram_id, event_name, event_time, notification_time] = std::tie(
+                n[0], n[1], n[2], n[3], n[4], n[5]
             );
 
             std::cout << "Sending notification to user: " << telegram_id
@@ -27,7 +27,8 @@ void periodic_task(NeverForgetBot::Database& db, TgBot::Bot& bot) {
                     notification_time,
                     event_name,
                     event_time,
-                    db
+                    db,
+                    event_id
                 );
 
                 try {

@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <cctype>
 
 namespace NeverForgetBot::Utils {
 
@@ -47,10 +48,10 @@ void startLongPolling(TgBot::Bot& bot) {
 
 std::vector<TgBot::BotCommand::Ptr> getBotCommands() {
     std::unordered_map<std::string, std::string> mp = {
+        { "/change_timezone","изменение часового пояса" },
         { "/upcoming_events", "получить список предстоящих событий" },
         { "/help", "инструкция по использованию бота" },
-        { "/start", "запуск бота" },
-        { "/change_tz","изменить"}
+        { "/start", "запуск бота" }
     };
 
     std::vector<TgBot::BotCommand::Ptr> commands;
@@ -70,40 +71,13 @@ std::string getBotDescription() {
         "Начнем! 🎯";
 }
 
-std::optional<std::string> formatTimeWithTimezone(long telegram_id, const std::string& time, NeverForgetBot::Database& db) {
-    try {
-        int timezone = db.getUserTimeZone(telegram_id);
-
-        std::string timestamp = time.substr(0, 19);
-
-        std::tm timeStruct = {};
-        std::istringstream ss(timestamp);
-        ss >> std::get_time(&timeStruct, "%Y-%m-%d %H:%M:%S");
-        if (ss.fail()) {
-            throw std::runtime_error("Ошибка при разборе временной метки");
-        }
-
-        time_t timeEpoch = std::mktime(&timeStruct);
-        if (timeEpoch == -1) {
-            throw std::runtime_error("Ошибка преобразования времени в time_t");
-        }
-        timeEpoch += timezone * 3600;
-
-        std::tm* updatedTimeStruct = std::gmtime(&timeEpoch);
-        if (!updatedTimeStruct) {
-            throw std::runtime_error("Ошибка преобразования времени в структуру tm");
-        }
-
-        std::ostringstream output;
-        output << std::put_time(updatedTimeStruct, "%Y-%m-%d %H:%M:%S");
-        return output.str();
-    } catch (const std::exception& e) {
-        std::cerr << "Error formatting time: " << e.what() << std::endl;
-        return std::nullopt;
-    }
-}
-
-void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker &event) {
+void saveEvent(
+    TgBot::Message::Ptr message,
+    TgBot::Bot &bot,
+    NeverForgetBot::Database &db,
+    Checker &event,
+    TgBot::Message::Ptr &currMessage
+) {
     long telegram_id = message->from->id;
     std::string event_name = event.getNameEvent();
     std::string event_time = event.getTime();
@@ -112,45 +86,51 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
     std::string notification_time;
     auto user_id = db.getUserIdByTelegramId(telegram_id);
 
-    std::string msg = "Детали созданного события:";
-    msg += "\nНазвание события: " + event_name;
-    msg += "\nВремя события: " + manual_format_in_russian(event_time);
-    if (notifications.empty()) {
-        msg += "\nВремя уведомления: " + manual_format_in_russian(event_time); 
-    }
-
-    int user_tz = db.getUserTimeZone(telegram_id);
-    event_time = adjustEventTime(event_time, user_tz);
+    int user_timezone = db.getUserTimeZone(telegram_id);
     if (!notifications.empty()){
         notification_time = notifications[0];
-        msg += "\nВремя уведомления: " + manual_format_in_russian(notification_time); 
-        notification_time = adjustEventTime(notification_time, user_tz);
-    }
-    else {
+    } else {
         notification_time = event_time;
     }
-    
+
     try {
         event_type = event.getType() == Checker::EventType::WHILE_NOT_DONE ? "WHILE_NOT_DONE" : "ONE_TIME";
     } catch (const std::invalid_argument &e) {
         event_type = "ONE_TIME";
     }
-    std::cout << "Время события: " << event_time << "\nВремя уведомления: " << notification_time << std::endl;
-    if (user_id.has_value()) {
-        auto event_id = db.insertEvent(user_id, event_name, event_time, event_type);
-        if (event_id.has_value()) {
-            db.insertNotification(event_id.value(), notification_time);
 
-            bot.getApi().sendMessage(message->chat->id, "Событие успешно добавлено");
-            bot.getApi().sendMessage(message->chat->id, msg);
-            
+    if (user_id.has_value()) {
+        auto event_id = db.insertEvent(user_id, event_name, adjustEventTime(event_time, user_timezone), event_type);
+        if (event_id.has_value()) {
+            db.insertNotification(event_id.value(), adjustEventTime(notification_time, user_timezone));
+
+            std::string confirmation_message =
+            "✅ Событие создано успешно:\n\n*✨ " +
+            event_name + "*\n" +
+            "⏳ Время: *" +
+            Utils::formatDateInRussian(Utils::convertToISO(telegram_id, event_time, db).value_or(event_time)) +
+            "*\n" + "📨 Уведомим *" +
+            Utils::formatDateInRussian(Utils::convertToISO(telegram_id, notification_time, db).value_or(notification_time)) + "*";
+
+            bot.getApi().editMessageText(confirmation_message, telegram_id, currMessage->messageId, "", "Markdown");
         }
         else {
-            bot.getApi().sendMessage(message->chat->id, "Произошла ошибка. Не удалось сохранить событие");
+            bot.getApi().editMessageText(
+                "Произошла ошибка. Не удалось сохранить событие",
+                telegram_id,
+                currMessage->messageId,
+                "",
+                "Markdown"
+            );
         }
-        
     } else {
-        bot.getApi().sendMessage(message->chat->id, "Не удалось получить идентификатор пользователя");
+        bot.getApi().editMessageText(
+            "Не удалось получить идентификатор пользователя",
+            telegram_id,
+            currMessage->messageId,
+            "",
+            "Markdown"
+        );
     }
 }
 
@@ -179,7 +159,45 @@ std::string adjustEventTime(const std::string& event_time, int user_timezone) {
     return adjusted_time_ss.str();
 }
 
-std::string manual_format_in_russian(const std::string& iso_datetime) {
+std::optional<std::string> convertToISO(long telegram_id, const std::string& timestamp_time, NeverForgetBot::Database& db) {
+    int timezone = db.getUserTimeZone(telegram_id);
+
+    auto space_idx = timestamp_time.find(" ");
+    if (space_idx == std::string::npos) {
+        return std::nullopt;
+    }
+
+    try {
+        std::string date = timestamp_time.substr(0, space_idx);
+        std::string time = timestamp_time.substr(space_idx + 1);
+
+        std::tm tm_time = {};
+        std::istringstream ss(timestamp_time);
+        ss >> std::get_time(&tm_time, "%Y-%m-%d %H:%M:%S");
+        if (ss.fail()) {
+            return std::nullopt;
+        }
+
+        std::time_t time_utc = std::mktime(&tm_time);
+        if (time_utc == -1) {
+            return std::nullopt;
+        }
+
+        time_utc += timezone * 3600;
+        std::tm* adjusted_tm = std::gmtime(&time_utc);
+        if (!adjusted_tm) {
+            return std::nullopt;
+        }
+
+        std::ostringstream iso_ss;
+        iso_ss << std::put_time(adjusted_tm, "%Y-%m-%dT%H:%M:%SZ");
+        return iso_ss.str();
+    } catch (const std::exception&) {
+        return std::nullopt;
+    }
+}
+
+std::string formatDateInRussian(const std::string& iso_datetime) {
     const std::vector<std::string> russian_months = {
         "января", "февраля", "марта", "апреля", "мая", "июня",
         "июля", "августа", "сентября", "октября", "ноября", "декабря"

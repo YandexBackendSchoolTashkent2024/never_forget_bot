@@ -14,9 +14,13 @@ void sendNotification(
     const std::string &notification_time,
     const std::string &event_name,
     const std::string &event_time,
-    Database &db
+    Database &db,
+    const std::string &event_id
 );
 
-void createNotificationKeyboard();
+TgBot::InlineKeyboardMarkup::Ptr createNotificationKeyboard(
+    const std::string &event_id,
+    const std::string &notification_id
+);
 
 } // namespace NeverForgetBot::Notifications
