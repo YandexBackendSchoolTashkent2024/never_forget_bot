@@ -71,7 +71,13 @@ std::string getBotDescription() {
         "Начнем! 🎯";
 }
 
-void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker &event) {
+void saveEvent(
+    TgBot::Message::Ptr message,
+    TgBot::Bot &bot,
+    NeverForgetBot::Database &db,
+    Checker &event,
+    TgBot::Message::Ptr &currMessage
+) {
     long telegram_id = message->from->id;
     std::string event_name = event.getNameEvent();
     std::string event_time = event.getTime();
@@ -106,13 +112,25 @@ void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Dat
             "*\n" + "📨 Уведомим *" +
             Utils::formatDateInRussian(Utils::convertToISO(telegram_id, notification_time, db).value_or(notification_time)) + "*";
 
-            bot.getApi().sendMessage(telegram_id, confirmation_message, nullptr, nullptr, nullptr, "Markdown");
+            bot.getApi().editMessageText(confirmation_message, telegram_id, currMessage->messageId, "", "Markdown");
         }
         else {
-            bot.getApi().sendMessage(message->chat->id, "Произошла ошибка. Не удалось сохранить событие");
+            bot.getApi().editMessageText(
+                "Произошла ошибка. Не удалось сохранить событие",
+                telegram_id,
+                currMessage->messageId,
+                "",
+                "Markdown"
+            );
         }
     } else {
-        bot.getApi().sendMessage(message->chat->id, "Не удалось получить идентификатор пользователя");
+        bot.getApi().editMessageText(
+            "Не удалось получить идентификатор пользователя",
+            telegram_id,
+            currMessage->messageId,
+            "",
+            "Markdown"
+        );
     }
 }
 

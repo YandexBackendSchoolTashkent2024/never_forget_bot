@@ -23,7 +23,13 @@ namespace NeverForgetBot::Utils {
 
     void startLongPolling(TgBot::Bot& bot);
 
-    void saveEvent(TgBot::Message::Ptr message, TgBot::Bot &bot, NeverForgetBot::Database &db, Checker &event) ;
+    void saveEvent(
+        TgBot::Message::Ptr message,
+        TgBot::Bot &bot,
+        NeverForgetBot::Database &db,
+        Checker &event,
+        TgBot::Message::Ptr &currMessage
+    ) ;
 
     std::string adjustEventTime(const std::string& event_time, int user_timezone);
 

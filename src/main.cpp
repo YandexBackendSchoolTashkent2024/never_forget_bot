@@ -64,9 +64,10 @@ int main() {
     bot.getEvents().onNonCommandMessage([&bot, &db](TgBot::Message::Ptr message) {
         std::string message_text;
         try {
+            TgBot::Message::Ptr currMessage = bot.getApi().sendMessage(message->chat->id, "Обрабатываю ваш запрос...");
             Checker checker = processMessage(message->text);
 
-            NeverForgetBot::Utils::saveEvent(message, bot, db, checker);
+            NeverForgetBot::Utils::saveEvent(message, bot, db, checker, currMessage);
 
         } catch (const std::exception& e) {
             message_text = "Ошибка обработки вашего сообщения: " + std::string(e.what());
